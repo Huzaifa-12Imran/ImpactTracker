@@ -19,9 +19,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Impact Tracker — Measure Open Source Social Impact",
+  title: "Impact Tracker",
   description:
-    "Classify open source projects by sector, score contributor diversity, and generate embeddable impact badges for your GitHub repositories.",
+    "Classify open source projects by sector and score social impact.",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
       <head>
-        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
       </head>
       <body className="min-h-screen font-sans selection:bg-accent-500 selection:text-jet-black">
         <Navbar />
