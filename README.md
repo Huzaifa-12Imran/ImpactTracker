@@ -8,6 +8,22 @@ Impact Tracker is a GitHub App that classifies projects by sector (Health, Educa
 
 ---
 
+## Tech Stack
+
+**Languages**  
+<br/>
+<img src="https://skillicons.dev/icons?i=ts,js" alt="Languages" />
+
+**Web & Backend Stack**  
+<br/>
+<img src="https://skillicons.dev/icons?i=react,nextjs,nodejs,express,tailwind" alt="Web Stack" />
+
+**Databases & Tools**  
+<br/>
+<img src="https://skillicons.dev/icons?i=postgres,redis,prisma,docker,git,github" alt="Databases and Tools" />
+
+---
+
 ## Features
 
 - **🧬 AI Sector Classification** — Automatically classifies repos using Google Gemini AI
