@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { SECTORS, SECTOR_COLORS, SDG_GOAL_NAMES, SCORE_MAX } from "@impact/shared";
-import type { Sector, SDGGoal } from "@impact/shared";
+import { SECTORS, SECTOR_COLORS, SDG_GOAL_NAMES } from "@impact/shared";
+import type { Sector } from "@impact/shared";
 
 export default function HomePage() {
   return (
-    <div className="gradient-hero">
+    <div className="bg-white">
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
@@ -29,128 +29,111 @@ function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden px-6 pb-20 pt-24 md:pt-32">
-      <div className="mx-auto max-w-4xl text-center">
-        {/* Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-1.5 text-sm text-primary-400">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary-400 animate-pulse-soft" />
-          Now tracking 1,000+ repos
+    <section className="grid-hero relative overflow-hidden border-b border-jet-black px-6 pb-24 pt-24 md:pt-32">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-8 inline-flex items-center gap-2 border border-jet-black bg-accent-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-jet-black">
+          <span className="h-2 w-2 bg-jet-black animate-pulse" />
+          Live Network Active
         </div>
 
-        {/* Title */}
-        <h1 className="mb-6 text-5xl font-extrabold leading-tight tracking-tight md:text-7xl">
-          Measure the{" "}
-          <span className="gradient-text">Social Impact</span>{" "}
-          of Open Source
+        <h1 className="mb-8 font-syne text-6xl font-bold leading-[0.9] tracking-tighter text-jet-black md:text-8xl">
+          TRACKING <br />
+          <span className="text-primary-600">SOCIAL IMPACT</span> <br />
+          IN OPEN SOURCE.
         </h1>
 
-        <p className="mx-auto mb-10 max-w-2xl text-lg text-dark-400 leading-relaxed">
-          Classify repos by sector. Score contributor diversity. Track first-time contributors.
-          Generate embeddable badges. All powered by AI and the GitHub API.
+        <p className="mb-12 max-w-xl font-sans text-lg font-medium leading-relaxed text-slate-600">
+          We use AI to classify project sectors and measure geographic diversity. 
+          Get your impact score and embed it anywhere.
         </p>
 
         {/* Search */}
         <form
           onSubmit={handleSearch}
-          className="mx-auto flex max-w-xl items-center gap-2 rounded-xl border border-dark-700 bg-dark-900/80 p-2 backdrop-blur-sm transition-all focus-within:border-primary-500/50 focus-within:shadow-[0_0_30px_rgba(6,182,212,0.1)]"
+          className="flex max-w-2xl flex-col gap-0 md:flex-row"
         >
-          <div className="flex items-center gap-2 px-3 text-dark-500">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="ENTER REPOSITORY (OWNER/REPO)"
+              className="w-full border-2 border-jet-black bg-white px-6 py-4 font-mono text-sm uppercase tracking-widest text-jet-black placeholder:text-slate-300 focus:outline-none"
+            />
+            <div className="absolute bottom-0 left-0 h-1 bg-primary-600 transition-all duration-500" style={{ width: searchInput ? '100%' : '0%' }} />
           </div>
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="owner/repo or paste GitHub URL"
-            className="flex-1 bg-transparent py-2 text-white placeholder:text-dark-500 focus:outline-none"
-          />
-          <button type="submit" className="btn-primary whitespace-nowrap px-6 py-2.5">
+          <button type="submit" className="btn-primary border-2 border-l-0 border-jet-black px-10 py-4">
             Analyze
           </button>
         </form>
 
         {/* Quick links */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-sm">
-          <span className="text-dark-500">Try:</span>
+        <div className="mt-8 flex flex-wrap items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <span>Popular:</span>
           {["facebook/react", "tensorflow/tensorflow", "openai/whisper"].map((repo) => (
             <a
               key={repo}
               href={`/repo/${repo}`}
-              className="rounded-md border border-dark-700 bg-dark-800/50 px-3 py-1 text-dark-300 transition-all hover:border-primary-500/30 hover:text-primary-400"
+              className="border-b border-transparent transition-colors hover:border-primary-600 hover:text-primary-600"
             >
               {repo}
             </a>
           ))}
         </div>
       </div>
-
-      {/* Decorative gradient orbs */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary-500/10 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-20 right-0 h-[300px] w-[300px] rounded-full bg-accent-500/5 blur-[80px]" />
     </section>
   );
 }
 
-// --- Features ---
+// --- Features (Bento) ---
 function FeaturesSection() {
   const features = [
     {
-      icon: "🧬",
-      title: "AI Sector Classification",
-      description: "Automatically classifies repos into Health, Education, Climate, and more using Gemini AI.",
+      title: "AI CLASSIFICATION",
+      description: "Automated sector mapping via Gemini Pro.",
+      size: "col-span-1 md:col-span-2",
+      accent: "bg-primary-100",
     },
     {
-      icon: "🌍",
-      title: "Geographic Diversity",
-      description: "Maps contributor locations to measure global inclusion and identify representation gaps.",
+      title: "GEO DIVERSITY",
+      description: "Visualizing global contribution reach.",
+      size: "col-span-1",
+      accent: "bg-accent-500",
     },
     {
-      icon: "🌱",
-      title: "First-Timer Tracking",
-      description: "Rewards repos that actively onboard new developers with welcoming contribution workflows.",
+      title: "ONBOARDING",
+      description: "First-timer tracking and retention metrics.",
+      size: "col-span-1",
+      accent: "bg-white",
     },
     {
-      icon: "🏅",
-      title: "Embeddable Badges",
-      description: "Dynamic SVG badges for your README that update automatically as your impact grows.",
-    },
-    {
-      icon: "📊",
-      title: "Impact Dashboard",
-      description: "Public, shareable dashboard with radar charts, world maps, and score history.",
-    },
-    {
-      icon: "🔗",
-      title: "Deep GitHub Integration",
-      description: "REST API, GraphQL, Webhooks, and OAuth for real-time scoring and seamless workflow.",
+      title: "EMBEDDABLE BADGES",
+      description: "Real-time SVG badges for your README.md.",
+      size: "col-span-1 md:col-span-2",
+      accent: "bg-slate-50",
     },
   ];
 
   return (
-    <section id="features" className="px-6 py-24">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Everything you need to{" "}
-            <span className="gradient-text">measure impact</span>
+    <section id="features" className="border-b border-jet-black px-6 py-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-16 flex flex-col items-end justify-between gap-6 md:flex-row">
+          <h2 className="font-syne text-4xl font-bold uppercase tracking-tighter text-jet-black md:text-5xl">
+            CORE <span className="text-primary-600">CAPABILITIES</span>
           </h2>
-          <p className="text-dark-400">Five scoring dimensions. One embeddable badge. Zero friction.</p>
+          <p className="max-w-xs text-right font-sans text-xs font-bold uppercase tracking-widest text-slate-400">
+            QUANTIFYING IMPACT THROUGH FIVE DATA DIMENSIONS.
+          </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, i) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {features.map((feature) => (
             <div
               key={feature.title}
-              className="glass-card p-6 animate-fade-in-up"
-              style={{ animationDelay: `${i * 100}ms` }}
+              className={`console-card p-8 ${feature.size} ${feature.accent}`}
             >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-dark-800 text-2xl">
-                {feature.icon}
-              </div>
-              <h3 className="mb-2 text-lg font-semibold text-white">{feature.title}</h3>
-              <p className="text-sm leading-relaxed text-dark-400">{feature.description}</p>
+              <h3 className="mb-4 font-syne text-2xl font-bold tracking-tighter text-jet-black">{feature.title}</h3>
+              <p className="font-sans text-sm font-medium leading-relaxed text-slate-600">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -162,35 +145,35 @@ function FeaturesSection() {
 // --- How It Works ---
 function HowItWorksSection() {
   const steps = [
-    { step: "01", title: "Install the GitHub App", description: "One-click install on any repo or org. We request minimal read-only permissions." },
-    { step: "02", title: "AI analyzes your project", description: "Our scoring engine classifies your sector, maps contributor geography, and checks documentation." },
-    { step: "03", title: "Get your Impact Score", description: "View your interactive dashboard and embed a dynamic badge in your README." },
+    { num: "01", title: "INTEGRATION", desc: "Connect GitHub App with one click." },
+    { num: "02", numColor: "text-primary-600", title: "ANALYSIS", desc: "AI scans repo metadata and history." },
+    { num: "03", numColor: "text-accent-500", title: "REPORTING", desc: "Deploy your impact dashboard." },
   ];
 
   return (
-    <section id="how-it-works" className="px-6 py-24">
+    <section id="how-it-works" className="border-b border-jet-black px-6 py-24">
       <div className="mx-auto max-w-4xl">
-        <h2 className="mb-16 text-center text-3xl font-bold md:text-4xl">
-          Three steps to{" "}
-          <span className="gradient-text">impact transparency</span>
-        </h2>
+        <div className="mb-20 text-center">
+          <h2 className="font-syne text-4xl font-bold uppercase tracking-tighter text-jet-black md:text-5xl">
+            THE <span className="text-accent-500">WORKFLOW</span>
+          </h2>
+        </div>
 
-        <div className="space-y-8">
-          {steps.map((step, i) => (
-            <div
-              key={step.step}
-              className="glass-card flex items-start gap-6 p-8 animate-fade-in-up"
-              style={{ animationDelay: `${i * 150}ms` }}
-            >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl gradient-primary text-xl font-bold text-white">
-                {step.step}
+        <div className="relative">
+          <div className="absolute left-8 top-0 hidden h-full w-px bg-jet-black md:block" />
+          <div className="space-y-12">
+            {steps.map((step) => (
+              <div key={step.num} className="relative flex items-center gap-12">
+                <div className={`z-10 flex h-16 w-16 shrink-0 items-center justify-center border-2 border-jet-black bg-white font-syne text-2xl font-bold ${step.numColor || 'text-jet-black'}`}>
+                  {step.num}
+                </div>
+                <div>
+                  <h3 className="font-syne text-xl font-bold uppercase tracking-tight text-jet-black">{step.title}</h3>
+                  <p className="font-sans text-sm font-medium text-slate-500">{step.desc}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="mb-2 text-xl font-semibold text-white">{step.title}</h3>
-                <p className="text-dark-400">{step.description}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -200,26 +183,17 @@ function HowItWorksSection() {
 // --- Sectors ---
 function SectorsSection() {
   return (
-    <section className="px-6 py-24">
+    <section className="border-b border-jet-black px-6 py-24">
       <div className="mx-auto max-w-4xl text-center">
-        <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-          Aligned with{" "}
-          <span className="gradient-text">UN Sustainable Development Goals</span>
+        <h2 className="mb-12 font-syne text-4xl font-bold uppercase tracking-tighter text-jet-black">
+          ALIGNED WITH <span className="text-primary-600">SDGS</span>
         </h2>
-        <p className="mb-12 text-dark-400">
-          Every repo is classified into a social impact sector and mapped to relevant SDGs.
-        </p>
-
-        <div className="flex flex-wrap justify-center gap-3">
+        
+        <div className="flex flex-wrap justify-center gap-2">
           {(SECTORS.filter((s) => s !== "General Tech") as Sector[]).map((sector) => (
             <div
               key={sector}
-              className="rounded-full border px-5 py-2 text-sm font-medium transition-all hover:scale-105"
-              style={{
-                borderColor: `${SECTOR_COLORS[sector]}40`,
-                backgroundColor: `${SECTOR_COLORS[sector]}15`,
-                color: SECTOR_COLORS[sector],
-              }}
+              className="border border-jet-black bg-white px-6 py-3 font-syne text-xs font-bold uppercase tracking-widest text-jet-black transition-all hover:bg-primary-600 hover:text-white"
             >
               {sector}
             </div>
@@ -234,22 +208,16 @@ function SectorsSection() {
 function CTASection() {
   return (
     <section className="px-6 py-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <div className="glass-card p-12">
-          <h2 className="mb-4 text-3xl font-bold">
-            Ready to measure your impact?
+      <div className="mx-auto max-w-3xl">
+        <div className="console-card bg-primary-600 p-16 text-center">
+          <h2 className="mb-6 font-syne text-4xl font-bold uppercase tracking-tighter text-white md:text-5xl">
+            START TRACKING <br /> YOUR IMPACT.
           </h2>
-          <p className="mb-8 text-dark-400">
-            Install the GitHub App and get your Impact Score in under 5 minutes.
-          </p>
           <a
             href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}/api/auth/github`}
-            className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+            className="btn-primary inline-block bg-white text-jet-black hover:bg-accent-500"
           >
-            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-            </svg>
-            Get Started Free
+            GET STARTED NOW
           </a>
         </div>
       </div>

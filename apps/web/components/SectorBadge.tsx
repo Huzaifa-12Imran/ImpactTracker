@@ -19,42 +19,42 @@ export default function SectorBadge({
   const color = SECTOR_COLORS[sector];
 
   return (
-    <div className="glass-card p-6">
-      <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-dark-400">
-        Sector Classification
+    <div className="console-card p-8">
+      <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+        Classification Output
       </h3>
 
       {/* Sector pill */}
-      <div className="mb-4 flex items-center gap-3">
-        <span
-          className="rounded-full px-4 py-1.5 text-sm font-semibold"
+      <div className="mb-6 flex items-center gap-4">
+        <div
+          className="border border-jet-black px-4 py-2 font-syne text-sm font-bold uppercase tracking-widest"
           style={{
-            backgroundColor: `${color}20`,
-            color,
-            border: `1px solid ${color}40`,
+            backgroundColor: `${color}15`,
+            color: "#0f172a",
+            borderColor: "#0f172a",
           }}
         >
           {sector}
-        </span>
-        <span className="text-xs text-dark-500">
-          {Math.round(confidence * 100)}% confidence
-        </span>
+        </div>
+        <div className="font-mono text-[10px] font-bold uppercase text-slate-500">
+          CONF: {Math.round(confidence * 100)}%
+        </div>
       </div>
 
       {/* SDG Tags */}
       {sdgGoals.length > 0 && (
-        <div className="mb-4">
-          <p className="mb-2 text-xs font-medium text-dark-500 uppercase tracking-wider">
-            UN Sustainable Development Goals
+        <div className="mb-6 border-t border-slate-100 pt-6">
+          <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            Target SDGs
           </p>
           <div className="flex flex-wrap gap-2">
             {sdgGoals.map((goal) => (
               <span
                 key={goal}
-                className="rounded-md bg-dark-800 px-2.5 py-1 text-xs text-dark-300"
+                className="border border-jet-black bg-white px-2.5 py-1 font-mono text-[10px] font-bold text-jet-black"
                 title={SDG_GOAL_NAMES[goal as SDGGoal] ?? `SDG ${goal}`}
               >
-                SDG {goal}
+                GOAL_{goal}
               </span>
             ))}
           </div>
@@ -63,17 +63,17 @@ export default function SectorBadge({
 
       {/* Keywords */}
       {keywords.length > 0 && (
-        <div>
-          <p className="mb-2 text-xs font-medium text-dark-500 uppercase tracking-wider">
-            Keywords
+        <div className="border-t border-slate-100 pt-6">
+          <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            Detected Tokens
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {keywords.map((kw) => (
               <span
                 key={kw}
-                className="rounded bg-dark-800/50 px-2 py-0.5 text-xs text-dark-400"
+                className="bg-slate-100 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-500"
               >
-                {kw}
+                #{kw.toUpperCase()}
               </span>
             ))}
           </div>

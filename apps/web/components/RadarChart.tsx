@@ -19,9 +19,9 @@ const LABELS = [
   { key: "communityHealth", label: "Community", max: 10 },
 ] as const;
 
-export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) {
+export default function RadarChart({ dimensions, size = 320 }: RadarChartProps) {
   const center = size / 2;
-  const maxRadius = size * 0.38;
+  const maxRadius = size * 0.35;
   const angleStep = (2 * Math.PI) / LABELS.length;
   const startAngle = -Math.PI / 2; // Start from top
 
@@ -46,9 +46,9 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
   const rings = [0.25, 0.5, 0.75, 1.0];
 
   return (
-    <div className="glass-card p-6">
-      <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-dark-400">
-        Score Breakdown
+    <div className="console-card p-8 bg-white">
+      <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+        Metric Distribution
       </h3>
 
       <div className="flex justify-center">
@@ -66,8 +66,10 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
                 key={ring}
                 points={ringPoints}
                 fill="none"
-                stroke="rgba(148, 163, 184, 0.1)"
-                strokeWidth={1}
+                stroke="#0f172a"
+                strokeWidth={0.5}
+                strokeDasharray="2,2"
+                opacity={0.15}
               />
             );
           })}
@@ -82,8 +84,9 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
                 y1={center}
                 x2={center + maxRadius * Math.cos(angle)}
                 y2={center + maxRadius * Math.sin(angle)}
-                stroke="rgba(148, 163, 184, 0.08)"
-                strokeWidth={1}
+                stroke="#0f172a"
+                strokeWidth={0.5}
+                opacity={0.1}
               />
             );
           })}
@@ -91,8 +94,9 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
           {/* Data polygon */}
           <polygon
             points={polygonPoints}
-            fill="rgba(6, 182, 212, 0.15)"
-            stroke="#06b6d4"
+            fill="#7c3aed"
+            fillOpacity={0.1}
+            stroke="#7c3aed"
             strokeWidth={2}
             strokeLinejoin="round"
           />
@@ -103,16 +107,16 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
               key={i}
               cx={point.x}
               cy={point.y}
-              r={4}
-              fill="#06b6d4"
+              r={3}
+              fill="#84cc16"
               stroke="#0f172a"
-              strokeWidth={2}
+              strokeWidth={1.5}
             />
           ))}
 
           {/* Labels */}
           {dataPoints.map((point, i) => {
-            const labelR = maxRadius + 24;
+            const labelR = maxRadius + 30;
             const angle = startAngle + i * angleStep;
             const lx = center + labelR * Math.cos(angle);
             const ly = center + labelR * Math.sin(angle);
@@ -123,7 +127,7 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
                   x={lx}
                   y={ly - 6}
                   textAnchor="middle"
-                  className="fill-dark-300 text-[11px] font-medium"
+                  className="font-syne text-[10px] font-bold uppercase tracking-tighter fill-jet-black"
                 >
                   {point.label}
                 </text>
@@ -131,10 +135,9 @@ export default function RadarChart({ dimensions, size = 280 }: RadarChartProps) 
                   x={lx}
                   y={ly + 8}
                   textAnchor="middle"
-                  className="fill-dark-500 text-[10px]"
-                  style={{ fontFamily: "var(--font-mono)" }}
+                  className="font-mono text-[9px] font-bold fill-slate-400"
                 >
-                  {point.value}/{point.max}
+                  [{point.value}/{point.max}]
                 </text>
               </g>
             );

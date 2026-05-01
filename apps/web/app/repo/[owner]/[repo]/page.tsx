@@ -88,56 +88,55 @@ export default function RepoDashboard() {
   const score = scoreData.score;
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10">
+    <div className="mx-auto max-w-7xl px-6 py-12">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-dark-500 mb-2">
-          <Link href="/" className="hover:text-primary-400 transition-colors">Home</Link>
+      <div className="mb-12 border-l-4 border-jet-black pl-8">
+        <div className="flex items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+          <Link href="/" className="hover:text-primary-600 transition-colors">ROOT</Link>
           <span>/</span>
-          <span>{owner}</span>
+          <span>{owner.toUpperCase()}</span>
           <span>/</span>
-          <span className="text-dark-300">{repo}</span>
+          <span className="text-jet-black">{repo.toUpperCase()}</span>
         </div>
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white">{scoreData.repository.fullName}</h1>
+        
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-2xl">
+            <h1 className="font-syne text-5xl font-bold tracking-tighter text-jet-black mb-2">
+              {scoreData.repository.fullName.split('/')[1]}
+            </h1>
             {scoreData.repository.description && (
-              <p className="mt-1 text-dark-400">{scoreData.repository.description}</p>
+              <p className="font-sans text-sm font-medium text-slate-500 leading-relaxed">
+                {scoreData.repository.description}
+              </p>
             )}
-            <div className="mt-2 flex items-center gap-4 text-sm text-dark-500">
+            <div className="mt-6 flex items-center gap-6 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-jet-black">
               {scoreData.repository.language && (
-                <span className="flex items-center gap-1">
-                  <span className="h-3 w-3 rounded-full bg-primary-500" />
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 bg-primary-600" />
                   {scoreData.repository.language}
                 </span>
               )}
-              <span>⭐ {scoreData.repository.stars.toLocaleString()}</span>
+              <span>STARS_{scoreData.repository.stars.toLocaleString()}</span>
+              <a
+                href={`https://github.com/${owner}/${repo}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary-600 transition-colors"
+              >
+                [VIEW_SOURCE]
+              </a>
             </div>
           </div>
-          <a
-            href={`https://github.com/${owner}/${repo}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-dark-700 bg-dark-800/50 px-4 py-2 text-sm text-dark-300 transition-all hover:border-dark-600 hover:text-white"
-          >
-            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-            </svg>
-            View on GitHub
-          </a>
         </div>
       </div>
 
       {/* Pending Banner */}
       {isPending && (
-        <div className="mb-8 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse-soft" />
-            <div>
-              <p className="text-sm font-medium text-amber-300">Analysis in progress</p>
-              <p className="text-xs text-dark-400">
-                {scoreData.repository.statusMessage ?? "Check back in a few minutes"}
-              </p>
+        <div className="mb-12 border border-jet-black bg-accent-500/10 p-6">
+          <div className="flex items-center gap-4">
+            <div className="h-3 w-3 bg-accent-500 animate-pulse" />
+            <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-jet-black">
+              ANALYSIS_IN_PROGRESS: {scoreData.repository.statusMessage?.toUpperCase() ?? "POLLING_DATA_STREAMS"}
             </div>
           </div>
         </div>
@@ -145,11 +144,11 @@ export default function RepoDashboard() {
 
       {/* Score Dashboard */}
       {score ? (
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left column: Score Gauge + Sector */}
-          <div className="space-y-6">
-            <div className="glass-card flex items-center justify-center p-8">
-              <ScoreGauge score={score.totalScore} size={220} />
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* Main Stats */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="console-card flex items-center justify-center p-12 bg-white">
+              <ScoreGauge score={score.totalScore} size={240} />
             </div>
             <SectorBadge
               sector={score.sector ?? "General Tech"}
@@ -159,14 +158,14 @@ export default function RepoDashboard() {
             />
           </div>
 
-          {/* Middle column: Radar + History */}
-          <div className="space-y-6">
+          {/* Visualization Column */}
+          <div className="lg:col-span-4 space-y-4">
             <RadarChart dimensions={score.dimensions} />
             <ScoreHistory history={history} />
           </div>
 
-          {/* Right column: Map + Docs + Badge */}
-          <div className="space-y-6">
+          {/* Data Column */}
+          <div className="lg:col-span-4 space-y-4">
             {contributors && (
               <WorldMap
                 countries={contributors.countries}
@@ -187,10 +186,10 @@ export default function RepoDashboard() {
         <SkeletonDashboard owner={owner} repo={repo} />
       )}
 
-      {/* Privacy note */}
-      <div className="mt-12 text-center">
-        <p className="text-xs text-dark-600">
-          🔒 Private repo data is never shared publicly and never used to train AI models.
+      {/* Footer Meta */}
+      <div className="mt-20 border-t border-slate-100 pt-8 text-center">
+        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-slate-300">
+          PROTECTED DATA STREAM // NO AI TRAINING LOGS GENERATED
         </p>
       </div>
     </div>
@@ -200,56 +199,27 @@ export default function RepoDashboard() {
 // --- Skeleton Loading State ---
 function SkeletonDashboard({ owner, repo }: { owner: string; repo: string }) {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10">
-      <div className="mb-8">
-        <div className="skeleton mb-2 h-4 w-32" />
-        <div className="skeleton mb-2 h-8 w-64" />
+    <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="mb-12 border-l-4 border-slate-100 pl-8">
+        <div className="skeleton mb-4 h-3 w-40" />
+        <div className="skeleton mb-4 h-12 w-80" />
         <div className="skeleton h-4 w-96" />
       </div>
 
-      <div className="mb-6 rounded-xl border border-primary-500/20 bg-primary-500/5 p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-primary-400 animate-pulse-soft" />
-          <p className="text-sm text-primary-300">
-            Analyzing <span className="font-semibold">{owner}/{repo}</span> — check back in a few minutes
-          </p>
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-4 space-y-4">
+          <div className="console-card h-80 bg-slate-50 border-slate-100 flex items-center justify-center">
+            <div className="skeleton h-48 w-48 rounded-full" />
+          </div>
+          <div className="console-card h-64 border-slate-100" />
         </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6">
-          <div className="glass-card flex h-72 items-center justify-center p-8">
-            <div className="skeleton h-44 w-44 rounded-full" />
-          </div>
-          <div className="glass-card h-48 p-6">
-            <div className="skeleton mb-3 h-4 w-32" />
-            <div className="skeleton mb-2 h-6 w-24" />
-            <div className="skeleton h-4 w-40" />
-          </div>
+        <div className="lg:col-span-4 space-y-4">
+          <div className="console-card h-80 border-slate-100" />
+          <div className="console-card h-64 border-slate-100" />
         </div>
-        <div className="space-y-6">
-          <div className="glass-card h-72 p-6">
-            <div className="skeleton mb-4 h-4 w-28" />
-            <div className="skeleton mx-auto h-52 w-52 rounded-full" />
-          </div>
-          <div className="glass-card h-72 p-6">
-            <div className="skeleton mb-4 h-4 w-28" />
-            <div className="skeleton h-48 w-full" />
-          </div>
-        </div>
-        <div className="space-y-6">
-          <div className="glass-card h-64 p-6">
-            <div className="skeleton mb-4 h-4 w-36" />
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="skeleton mb-2 h-5 w-full" />
-            ))}
-          </div>
-          <div className="glass-card h-40 p-6">
-            <div className="skeleton mb-3 h-4 w-36" />
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="skeleton mb-2 h-5 w-full" />
-            ))}
-          </div>
+        <div className="lg:col-span-4 space-y-4">
+          <div className="console-card h-80 border-slate-100" />
+          <div className="console-card h-64 border-slate-100" />
         </div>
       </div>
     </div>
@@ -260,12 +230,12 @@ function SkeletonDashboard({ owner, repo }: { owner: string; repo: string }) {
 function ErrorState({ error, owner, repo }: { error: string; owner: string; repo: string }) {
   return (
     <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-      <div className="glass-card p-12">
-        <div className="mb-4 text-5xl">🔍</div>
-        <h2 className="mb-2 text-2xl font-bold text-white">{owner}/{repo}</h2>
-        <p className="mb-6 text-dark-400">{error}</p>
-        <Link href="/" className="btn-primary inline-block">
-          ← Back to Home
+      <div className="console-card p-16 border-red-500">
+        <div className="mb-6 font-mono text-3xl font-bold text-red-500">ERROR_404</div>
+        <h2 className="mb-4 font-syne text-2xl font-bold tracking-tighter text-jet-black">{owner.toUpperCase()} / {repo.toUpperCase()}</h2>
+        <p className="mb-10 font-sans text-sm font-medium text-slate-500">{error.toUpperCase()}</p>
+        <Link href="/" className="btn-primary">
+          ← TERMINATE & RETURN
         </Link>
       </div>
     </div>

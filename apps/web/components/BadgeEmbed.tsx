@@ -31,27 +31,27 @@ export default function BadgeEmbed({ owner, repo }: BadgeEmbedProps) {
   };
 
   return (
-    <div className="glass-card p-6">
-      <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-dark-400">
-        Embed Badge
+    <div className="console-card p-8 bg-white">
+      <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+        Asset Distribution
       </h3>
 
       {/* Badge preview */}
-      <div className="mb-5 flex items-center justify-center rounded-lg bg-dark-900/50 p-6">
+      <div className="mb-6 flex items-center justify-center border border-jet-black bg-slate-50 p-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={badgeUrl} alt="Impact Score Badge" className="h-5" />
       </div>
 
       {/* Style selector */}
-      <div className="mb-4 flex gap-2">
+      <div className="mb-6 flex gap-1 border-b border-slate-100 pb-4">
         {(["default", "flat", "sdg"] as const).map((style) => (
           <button
             key={style}
             onClick={() => setSelectedStyle(style)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
+            className={`px-3 py-1 font-mono text-[9px] font-bold uppercase transition-all ${
               selectedStyle === style
-                ? "bg-primary-500/20 text-primary-400 border border-primary-500/30"
-                : "bg-dark-800 text-dark-400 border border-dark-700 hover:border-dark-600"
+                ? "bg-jet-black text-white"
+                : "text-slate-400 hover:text-jet-black"
             }`}
           >
             {style}
@@ -60,35 +60,21 @@ export default function BadgeEmbed({ owner, repo }: BadgeEmbedProps) {
       </div>
 
       {/* Snippets */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {(Object.entries(snippets) as [string, string][]).map(([key, snippet]) => (
           <div key={key}>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wider text-dark-500">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-slate-400">
                 {key}
               </span>
               <button
                 onClick={() => handleCopy(key, snippet)}
-                className="flex items-center gap-1 rounded px-2 py-0.5 text-xs text-dark-400 transition-colors hover:bg-dark-800 hover:text-primary-400"
+                className="font-mono text-[9px] font-bold uppercase text-primary-600 hover:text-jet-black"
               >
-                {copied === key ? (
-                  <>
-                    <svg className="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    Copy
-                  </>
-                )}
+                {copied === key ? "[COPIED]" : "[COPY]"}
               </button>
             </div>
-            <div className="code-block overflow-x-auto whitespace-nowrap text-xs text-dark-300">
+            <div className="code-block text-[10px]">
               {snippet}
             </div>
           </div>

@@ -22,57 +22,57 @@ export default function WorldMap({ countries, totalContributors }: WorldMapProps
   const uniqueCountries = sortedCountries.length;
 
   return (
-    <div className="glass-card p-6">
-      <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-dark-400">
-        Contributor Geography
+    <div className="console-card p-8 bg-white">
+      <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+        Global Reach / Geo Distribution
       </h3>
 
       {/* Stats bar */}
-      <div className="mb-5 grid grid-cols-3 gap-4">
-        <StatBox label="Countries" value={String(uniqueCountries)} />
-        <StatBox label="Located" value={`${knownCount}/${totalContributors}`} />
+      <div className="mb-8 grid grid-cols-3 gap-0 border border-jet-black divide-x divide-jet-black">
+        <StatBox label="NATIONS" value={String(uniqueCountries)} />
+        <StatBox label="LOCATED" value={`${knownCount}/${totalContributors}`} />
         <StatBox
-          label="Coverage"
+          label="INDEX"
           value={`${totalContributors > 0 ? Math.round((knownCount / totalContributors) * 100) : 0}%`}
         />
       </div>
 
       {/* Country list with bar chart */}
-      <div className="space-y-2">
-        {sortedCountries.slice(0, 12).map(([code, count]) => {
+      <div className="space-y-4">
+        {sortedCountries.slice(0, 8).map(([code, count]) => {
           const maxCount = sortedCountries[0]?.[1] ?? 1;
           const barWidth = (count / maxCount) * 100;
 
           return (
-            <div key={code} className="flex items-center gap-3">
-              <span className="w-8 text-xs font-mono text-dark-400 text-right" style={{ fontFamily: "var(--font-mono)" }}>
+            <div key={code} className="group flex items-center gap-4">
+              <span className="w-8 font-mono text-[10px] font-bold text-jet-black">
                 {code}
               </span>
-              <div className="flex-1">
-                <div className="h-5 rounded-sm bg-dark-800/50 overflow-hidden">
-                  <div
-                    className="h-full rounded-sm bg-gradient-to-r from-primary-600 to-primary-400 transition-all duration-700"
-                    style={{ width: `${barWidth}%` }}
-                  />
+              <div className="relative h-6 flex-1 border border-jet-black bg-slate-50">
+                <div
+                  className="h-full bg-accent-500 transition-all duration-700"
+                  style={{ width: `${barWidth}%` }}
+                />
+                <div className="absolute inset-0 flex items-center justify-end px-2">
+                  <span className="font-mono text-[9px] font-bold text-jet-black opacity-0 group-hover:opacity-100 transition-opacity">
+                    COUNT_{count}
+                  </span>
                 </div>
               </div>
-              <span className="w-8 text-right text-xs font-mono text-dark-400" style={{ fontFamily: "var(--font-mono)" }}>
-                {count}
-              </span>
             </div>
           );
         })}
 
-        {sortedCountries.length > 12 && (
-          <p className="pt-1 text-center text-xs text-dark-500">
-            +{sortedCountries.length - 12} more countries
-          </p>
+        {sortedCountries.length > 8 && (
+          <div className="pt-2 font-mono text-[9px] font-bold uppercase tracking-widest text-slate-400">
+            [+{sortedCountries.length - 8} OVERFLOW ENTRIES]
+          </div>
         )}
 
         {unknownCount > 0 && (
-          <p className="pt-2 text-xs text-dark-600">
-            {unknownCount} contributor{unknownCount !== 1 ? "s" : ""} with unresolvable location
-          </p>
+          <div className="border-t border-slate-100 pt-4 font-mono text-[9px] font-bold text-slate-400">
+            {unknownCount} ENTRIES WITH ANONYMOUS LOCATION MAPPING
+          </div>
         )}
       </div>
     </div>
@@ -81,11 +81,11 @@ export default function WorldMap({ countries, totalContributors }: WorldMapProps
 
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-dark-800/30 p-3 text-center">
-      <p className="text-lg font-bold text-white font-mono" style={{ fontFamily: "var(--font-mono)" }}>
+    <div className="p-4 text-center">
+      <p className="font-syne text-xl font-bold tracking-tighter text-jet-black">
         {value}
       </p>
-      <p className="text-[10px] uppercase tracking-wider text-dark-500">{label}</p>
+      <p className="font-mono text-[9px] font-bold tracking-widest text-slate-400">{label}</p>
     </div>
   );
 }

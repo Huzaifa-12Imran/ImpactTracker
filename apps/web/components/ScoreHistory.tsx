@@ -5,8 +5,6 @@
  * Uses Recharts for the visualization.
  */
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,7 +24,7 @@ export default function ScoreHistory({ history }: ScoreHistoryProps) {
     date: new Date(entry.createdAt).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-    }),
+    }).toUpperCase(),
     score: Math.round(entry.totalScore * 10) / 10,
     sector: entry.dimensions.sectorRelevance,
     geography: entry.dimensions.contributorGeography,
@@ -37,62 +35,65 @@ export default function ScoreHistory({ history }: ScoreHistoryProps) {
 
   if (data.length === 0) {
     return (
-      <div className="glass-card p-6">
-        <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-dark-400">
-          Score History
+      <div className="console-card p-8 bg-white">
+        <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+          Historical Performance
         </h3>
-        <div className="flex h-48 items-center justify-center text-dark-500">
-          Not enough data points yet. Check back after the next analysis.
+        <div className="flex h-48 items-center justify-center font-mono text-[10px] font-bold text-slate-300">
+          INSUFFICIENT_DATA_POINTS
         </div>
       </div>
     );
   }
 
   return (
-    <div className="glass-card p-6">
-      <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-dark-400">
-        Score History
+    <div className="console-card p-8 bg-white">
+      <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+        Impact Trend / Analysis
       </h3>
 
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
             <defs>
               <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.1} />
+                <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.08)" />
+            <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" />
             <XAxis
               dataKey="date"
-              tick={{ fill: "#64748b", fontSize: 11 }}
-              axisLine={{ stroke: "rgba(148, 163, 184, 0.1)" }}
+              tick={{ fill: "#94a3b8", fontSize: 9, fontWeight: 700, fontFamily: 'var(--font-mono)' }}
+              axisLine={{ stroke: "#0f172a", strokeOpacity: 0.1 }}
               tickLine={false}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: "#64748b", fontSize: 11 }}
-              axisLine={{ stroke: "rgba(148, 163, 184, 0.1)" }}
+              tick={{ fill: "#94a3b8", fontSize: 9, fontWeight: 700, fontFamily: 'var(--font-mono)' }}
+              axisLine={{ stroke: "#0f172a", strokeOpacity: 0.1 }}
               tickLine={false}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1e293b",
-                border: "1px solid rgba(148, 163, 184, 0.2)",
-                borderRadius: "8px",
-                color: "#f1f5f9",
-                fontSize: "12px",
+                backgroundColor: "#0f172a",
+                border: "none",
+                color: "#ffffff",
+                fontSize: "10px",
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700,
+                padding: '8px 12px'
               }}
+              itemStyle={{ color: '#84cc16' }}
             />
             <Area
               type="monotone"
               dataKey="score"
-              stroke="#06b6d4"
-              strokeWidth={2}
+              stroke="#7c3aed"
+              strokeWidth={3}
               fill="url(#scoreGradient)"
-              dot={{ fill: "#06b6d4", r: 3, strokeWidth: 2, stroke: "#0f172a" }}
-              activeDot={{ r: 5, fill: "#22d3ee" }}
+              dot={{ fill: "#84cc16", r: 4, strokeWidth: 2, stroke: "#0f172a" }}
+              activeDot={{ r: 6, fill: "#84cc16", stroke: "#0f172a", strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>
