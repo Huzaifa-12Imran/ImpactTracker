@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -45,25 +46,25 @@ function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-dark-800/50 bg-dark-950/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <a href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
             <span className="text-lg font-bold text-white">🌍</span>
           </div>
           <span className="text-lg font-bold tracking-tight text-white">
             Impact<span className="text-primary-400">Tracker</span>
           </span>
-        </a>
+        </Link>
 
         <div className="hidden items-center gap-8 md:flex">
-          <a href="/#features" className="text-sm text-dark-400 transition-colors hover:text-primary-400">
+          <Link href="/#features" className="text-sm text-dark-400 transition-colors hover:text-primary-400">
             Features
-          </a>
-          <a href="/#how-it-works" className="text-sm text-dark-400 transition-colors hover:text-primary-400">
+          </Link>
+          <Link href="/#how-it-works" className="text-sm text-dark-400 transition-colors hover:text-primary-400">
             How It Works
-          </a>
-          <a href="/dashboard" className="text-sm text-dark-400 transition-colors hover:text-primary-400">
+          </Link>
+          <Link href="/dashboard" className="text-sm text-dark-400 transition-colors hover:text-primary-400">
             Dashboard
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">
@@ -93,7 +94,7 @@ function Footer() {
             <span className="text-sm font-semibold text-dark-400">Impact Tracker</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-dark-500">
-            <a href="/privacy" className="transition-colors hover:text-dark-300">Privacy Policy</a>
+            <Link href="/privacy" className="transition-colors hover:text-dark-300">Privacy Policy</Link>
             <a href="https://github.com" className="transition-colors hover:text-dark-300">GitHub</a>
             <span>© {new Date().getFullYear()}</span>
           </div>

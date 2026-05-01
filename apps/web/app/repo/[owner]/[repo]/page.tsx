@@ -9,6 +9,7 @@
  */
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { getRepoScore, getRepoHistory, getRepoContributors } from "@lib/api";
 import type { ScoreResponse, ScoreHistoryEntry } from "@impact/shared";
 
@@ -91,7 +92,7 @@ export default function RepoDashboard() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 text-sm text-dark-500 mb-2">
-          <a href="/" className="hover:text-primary-400 transition-colors">Home</a>
+          <Link href="/" className="hover:text-primary-400 transition-colors">Home</Link>
           <span>/</span>
           <span>{owner}</span>
           <span>/</span>
@@ -263,9 +264,9 @@ function ErrorState({ error, owner, repo }: { error: string; owner: string; repo
         <div className="mb-4 text-5xl">🔍</div>
         <h2 className="mb-2 text-2xl font-bold text-white">{owner}/{repo}</h2>
         <p className="mb-6 text-dark-400">{error}</p>
-        <a href="/" className="btn-primary inline-block">
+        <Link href="/" className="btn-primary inline-block">
           ← Back to Home
-        </a>
+        </Link>
       </div>
     </div>
   );
