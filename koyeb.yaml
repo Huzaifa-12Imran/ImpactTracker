@@ -1,0 +1,43 @@
+# Koyeb Deployment Configuration
+# Reference: https://www.koyeb.com/docs/deployment/koyeb-yaml
+version: "1.0"
+
+services:
+  - name: impact-tracker-api
+    type: web
+    image: node:20-slim
+    regions:
+      - fra # Frankfurt (default, choose closest to you)
+    instance_type: nano # Free tier
+    ports:
+      - port: 4000
+        protocol: http
+    health_check:
+      path: /health
+      method: get
+    routes:
+      - path: /
+        port: 4000
+    
+    # Environment Variables
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      # The following should be set in the Koyeb Dashboard as secrets
+      # - DATABASE_URL
+      # - REDIS_URL
+      # - GITHUB_APP_ID
+      # - GITHUB_PRIVATE_KEY
+      # - GITHUB_CLIENT_ID
+      # - GITHUB_CLIENT_SECRET
+      # - GITHUB_WEBHOOK_SECRET
+      # - GEMINI_API_KEY
+      # - APP_URL (Your Vercel URL)
+
+    # Build and Start configuration
+    build:
+      command: pnpm install && pnpm build --filter=api
+    run:
+      command: pnpm start --filter=api
