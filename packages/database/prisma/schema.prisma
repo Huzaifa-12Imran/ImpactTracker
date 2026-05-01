@@ -1,0 +1,135 @@
+// This is your Prisma schema file.
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Enums ---
+
+enum AnalysisStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+  FAILED
+}
+
+// --- Models ---
+
+model Repository {
+  id             String         @id @default(cuid())
+  githubId       Int            @unique
+  owner          String
+  name           String
+  fullName       String         @unique // "owner/repo"
+  description    String?
+  topics         String[]
+  language       String?
+  stars          Int            @default(0)
+  license        String?
+  readmeContent  String?        @db.Text
+  installationId Int?
+  status         AnalysisStatus @default(PENDING)
+  statusMessage  String?        // Human-readable status note
+  lastAnalyzedAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  impactScores  ImpactScore[]
+  contributors  Contributor[]
+  webhookEvents WebhookEvent[]
+
+  @@map("repositories")
+  @@index([owner, name])
+  @@index([status])
+}
+
+model ImpactScore {
+  id                   String   @id @default(cuid())
+  repositoryId         String
+  repository           Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  totalScore           Float    // 0-100
+  sectorRelevance      Float    // 0-30
+  contributorGeography Float    // 0-25
+  firstTimerOnboarding Float    // 0-20
+  docsAccessibility    Float    // 0-15
+  communityHealth      Float    // 0-10
+
+  sector               String?  // Health, Education, Climate, etc.
+  sectorConfidence     Float?
+  sdgGoals             Int[]    // UN SDG numbers
+  sectorKeywords       String[]
+
+  contributorCountries Json?    // { "US": 12, "IN": 8, ... }
+  firstTimerCount      Int?
+  totalContributors    Int?
+
+  contentHash          String?  // SHA-256 of README + topics for change detection
+
+  createdAt            DateTime @default(now())
+
+  @@map("impact_scores")
+  @@index([repositoryId])
+  @@index([createdAt])
+}
+
+model Contributor {
+  id             String   @id @default(cuid())
+  githubLogin    String
+  repositoryId   String
+  repository     Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  rawLocation    String?  // Original free-text location from GitHub
+  resolvedCountry String? // 2-letter ISO code resolved via 3-tier strategy
+  commitCount    Int      @default(0)
+  isFirstTimer   Boolean  @default(false)
+  firstContribAt DateTime?
+  createdAt      DateTime @default(now())
+
+  @@unique([githubLogin, repositoryId])
+  @@map("contributors")
+  @@index([repositoryId])
+  @@index([resolvedCountry])
+}
+
+model WebhookEvent {
+  id           String      @id @default(cuid())
+  repositoryId String?
+  repository   Repository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  event        String      // "push", "pull_request", "issues", etc.
+  action       String?     // "opened", "closed", etc.
+  payload      Json
+  processedAt  DateTime?
+  createdAt    DateTime    @default(now())
+
+  @@map("webhook_events")
+  @@index([event])
+  @@index([createdAt])
+}
+
+model Installation {
+  id              String   @id @default(cuid())
+  githubInstallId Int      @unique
+  accountLogin    String
+  accountType     String   // "User" or "Organization"
+  accessToken     String?
+  tokenExpiresAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("installations")
+}
+
+model AppConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g. "sdg_weight_3", "sdg_weight_13"
+  value     String            // JSON-encoded value
+  updatedAt DateTime @updatedAt
+
+  @@map("app_config")
+}

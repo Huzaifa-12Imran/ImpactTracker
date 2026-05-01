@@ -1,0 +1,32 @@
+{
+  "name": "@impact/github-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@impact/shared": "workspace:*",
+    "@octokit/app": "^15.1.2",
+    "@octokit/auth-app": "^7.1.4",
+    "@octokit/plugin-throttling": "^9.4.0",
+    "@octokit/webhooks": "^13.6.1",
+    "octokit": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^5.7.3"
+  }
+}
