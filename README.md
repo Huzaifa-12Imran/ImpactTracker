@@ -4,7 +4,7 @@
 
 Impact Tracker is a GitHub App that classifies projects by sector (Health, Education, Climate, Civic Tech, Accessibility), scores contributor geographic diversity, tracks first-time contributors, and generates embeddable badges — all powered by AI and the GitHub API.
 
-[![CI](https://github.com/your-org/impact-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/impact-tracker/actions/workflows/ci.yml)
+[![CI](https://github.com/Huzaifa-12Imran/ImpactTracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Huzaifa-12Imran/ImpactTracker/actions/workflows/ci.yml)
 
 ---
 
