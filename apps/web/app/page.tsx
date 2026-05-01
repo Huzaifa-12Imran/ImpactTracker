@@ -32,7 +32,9 @@ function HeroSection() {
     <section className="grid-hero relative overflow-hidden border-b border-jet-black px-6 pb-24 pt-24 md:pt-32">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 inline-flex items-center gap-2 border border-jet-black bg-accent-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-jet-black">
-          <span className="h-2 w-2 bg-jet-black animate-pulse" />
+          <svg className="h-3 w-3 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
           Live Network Active
         </div>
 

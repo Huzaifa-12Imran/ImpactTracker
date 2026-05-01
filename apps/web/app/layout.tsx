@@ -31,6 +31,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <link rel="icon" href="/favicon.png" />
+      </head>
       <body className="min-h-screen font-sans selection:bg-accent-500 selection:text-jet-black">
         <Navbar />
         <main>{children}</main>
@@ -47,7 +50,9 @@ function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center border-2 border-jet-black bg-primary-600">
-            <span className="text-xl">🌍</span>
+            <svg className="h-6 w-6 text-accent-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
           </div>
           <span className="font-syne text-xl font-bold uppercase tracking-tighter text-jet-black">
             Impact<span className="text-primary-600">Tracker</span>
