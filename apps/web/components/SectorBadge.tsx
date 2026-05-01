@@ -19,7 +19,7 @@ export default function SectorBadge({
   const color = SECTOR_COLORS[sector];
 
   return (
-    <div className="console-card p-8">
+    <div className="console-card p-8 bg-white">
       <h3 className="mb-6 font-syne text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
         Classification Output
       </h3>

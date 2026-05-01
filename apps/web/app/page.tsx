@@ -208,14 +208,18 @@ function SectorsSection() {
 function CTASection() {
   return (
     <section className="px-6 py-24">
-      <div className="mx-auto max-w-3xl">
-        <div className="console-card bg-primary-600 p-16 text-center">
-          <h2 className="mb-6 font-syne text-4xl font-bold uppercase tracking-tighter text-white md:text-5xl">
-            START TRACKING <br /> YOUR IMPACT.
+      <div className="mx-auto max-w-4xl">
+        <div className="console-card bg-jet-black p-16 text-center shadow-[8px_8px_0px_#84cc16]">
+          <h2 className="mb-6 font-syne text-4xl font-bold uppercase tracking-tighter text-white md:text-6xl">
+            READY TO MEASURE <br /> <span className="text-accent-500">YOUR IMPACT?</span>
           </h2>
+          <p className="mb-10 mx-auto max-w-md font-sans text-sm font-medium text-slate-400">
+            Join 1,000+ repositories quantifying their social contribution.
+            Install the GitHub App and get your score in minutes.
+          </p>
           <a
             href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}/api/auth/github`}
-            className="btn-primary inline-block bg-white text-jet-black hover:bg-accent-500"
+            className="btn-primary border-2 border-white bg-accent-500 text-jet-black hover:bg-white"
           >
             GET STARTED NOW
           </a>
