@@ -16,7 +16,7 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo",
-    "test": "node --experimental-vm-modules node_modules/.bin/vitest run"
+    "test": "vitest run"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
