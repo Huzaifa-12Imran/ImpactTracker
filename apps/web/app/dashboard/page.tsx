@@ -42,7 +42,7 @@ export default function DashboardPage() {
     setSyncing(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-      await fetch(`${apiUrl}/api/repos/sync`, { method: "POST" });
+      await fetch(`${apiUrl}/api/repos/sync?force=true`, { method: "POST" });
       await fetchRepos();
     } catch (error) {
       console.error("Sync failed:", error);

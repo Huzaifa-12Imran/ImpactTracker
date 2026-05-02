@@ -39,9 +39,10 @@ router.get("/", async (_req: Request, res: Response): Promise<void> => {
  * POST /api/repos/sync
  * Manually sync all installations and repositories from GitHub.
  */
-router.post("/sync", async (_req: Request, res: Response): Promise<void> => {
+router.post("/sync", async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log("[Sync] Starting manual sync...");
+    const force = req.query.force === "true";
+    console.log(`[Sync] Starting manual sync... (Force: ${force})`);
     const { getGitHubApp } = await import("@impact/github-client");
     const app = getGitHubApp();
     console.log("[Sync] App instance created. Fetching installations...");
@@ -76,7 +77,7 @@ router.post("/sync", async (_req: Request, res: Response): Promise<void> => {
 
       const analysisQueue = (await import("../queues/index.js")).getAnalysisQueue();
       for (const repoData of repositories) {
-        console.log(`[Sync] Upserting & Enqueueing repo: ${repoData.full_name}`);
+        console.log(`[Sync] Upserting & Enqueueing repo: ${repoData.full_name} (Force: ${force})`);
         await prisma.repository.upsert({
           where: { fullName: repoData.full_name },
           update: {
@@ -105,6 +106,7 @@ router.post("/sync", async (_req: Request, res: Response): Promise<void> => {
           repo: repoData.name,
           installationId: installId,
           fullAnalysis: true,
+          forceClassification: force,
         });
 
         syncedCount++;
@@ -152,8 +154,11 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
       description: repository.description,
       stars: repository.stars,
       language: repository.language,
-      status: repository.status,
+      status: repository.status as AnalysisStatus,
       statusMessage: repository.statusMessage,
+      readmeLength: repository.readmeContent?.length ?? 0,
+      hasContributing: repository.hasContributing,
+      hasCodeOfConduct: repository.hasCodeOfConduct,
     },
     score: latestScore
       ? {

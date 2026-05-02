@@ -193,9 +193,9 @@ export default function RepoDashboard() {
               />
             )}
             <DocsHealth
-              readmeLength={0}
-              hasContributing={false}
-              hasCodeOfConduct={false}
+              readmeLength={scoreData.repository.readmeLength}
+              hasContributing={scoreData.repository.hasContributing}
+              hasCodeOfConduct={scoreData.repository.hasCodeOfConduct}
               docsScore={score.dimensions.docsAccessibility}
               maxScore={15}
             />

@@ -119,6 +119,9 @@ export interface ScoreResponse {
     language: string | null;
     status: AnalysisStatus;
     statusMessage: string | null;
+    readmeLength: number;
+    hasContributing: boolean;
+    hasCodeOfConduct: boolean;
   };
   score: {
     totalScore: number;

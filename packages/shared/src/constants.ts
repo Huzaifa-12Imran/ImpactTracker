@@ -46,7 +46,7 @@ export const SCORING_THRESHOLDS = {
 export const SECTOR_KEYWORDS: Record<Sector, string[]> = {
   Health: ["health", "medical", "clinical", "hospital", "patient", "mhealth", "healthcare", "pharma", "diagnosis", "telemedicine", "ehr", "fhir"],
   Education: ["education", "learning", "school", "student", "teaching", "edtech", "mooc", "curriculum", "classroom", "lms", "elearning"],
-  Climate: ["climate", "environment", "carbon", "sustainability", "renewable", "solar", "wind", "emissions", "ecology", "biodiversity", "conservation", "green", "net-zero"],
+  Climate: ["climate-change", "global-warming", "decarbonization", "sustainability-report", "renewable-energy", "solar-panel", "wind-turbine", "carbon-footprint", "ecology", "biodiversity", "conservation-effort", "net-zero"],
   Humanitarian: ["humanitarian", "refugee", "disaster", "relief", "ngo", "nonprofit", "aid", "crisis", "poverty", "donation", "charity", "philanthropy"],
   "Civic Tech": ["civic", "government", "democracy", "voting", "election", "transparency", "opendata", "policy", "legislation", "govtech", "impact", "scoring", "measurement", "social-impact"],
   Accessibility: ["accessibility", "a11y", "screen-reader", "wcag", "aria", "assistive", "disability", "inclusive-design", "captioning", "braille"],

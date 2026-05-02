@@ -22,7 +22,10 @@ const app: express.Express = express();
 const PORT = process.env.PORT ?? 4000;
 
 // --- Middleware ---
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false, // Disable for now to ensure badges work everywhere
+}));
 app.use(cors({
   origin: process.env.APP_URL ?? "http://localhost:3000",
   credentials: true,

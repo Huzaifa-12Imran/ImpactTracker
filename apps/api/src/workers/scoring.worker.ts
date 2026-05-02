@@ -126,8 +126,8 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         })),
         readmeContent: repo.readmeContent,
         topics: repo.topics,
-        hasContributing: false, // TODO: fetch from community profile
-        hasCodeOfConduct: false,
+        hasContributing: repo.hasContributing,
+        hasCodeOfConduct: repo.hasCodeOfConduct,
         communityProfile: null,
         avgIssueResponseHours: null,
         prMergeRate: null,

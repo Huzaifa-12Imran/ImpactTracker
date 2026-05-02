@@ -65,9 +65,9 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
           resolvedCountry: resolveCountry(c.location),
         }));
 
-        // 5. Fetch community profile (optional for now)
+        // 5. Fetch community profile
         await job.updateProgress(60);
-        await getCommunityProfile(octokit, owner, repo);
+        const communityProfile = await getCommunityProfile(octokit, owner, repo);
 
         // 6. Store all data in PostgreSQL
         await job.updateProgress(70);
@@ -88,6 +88,8 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
             stars: metadata.stars,
             license: metadata.license,
             readmeContent,
+            hasContributing: communityProfile?.hasContributing ?? false,
+            hasCodeOfConduct: communityProfile?.hasCodeOfConduct ?? false,
             statusMessage: "Preparing score computation...",
           },
         });

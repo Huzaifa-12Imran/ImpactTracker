@@ -34,6 +34,8 @@ model Repository {
   license        String?
   readmeContent  String?        @db.Text
   installationId Int?
+  hasContributing  Boolean        @default(false)
+  hasCodeOfConduct Boolean        @default(false)
   status         AnalysisStatus @default(PENDING)
   statusMessage  String?        // Human-readable status note
   lastAnalyzedAt DateTime?

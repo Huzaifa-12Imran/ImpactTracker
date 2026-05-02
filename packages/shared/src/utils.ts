@@ -99,9 +99,12 @@ export function classifyByKeywords(topics: string[], readmeExcerpt: string | nul
     }
   }
 
+  // Require at least 2 keywords for a confident match, or a very high score
+  const isConfident = bestKeywords.length >= 2 || (bestKeywords.length === 1 && bestScore > 0.5);
+
   return {
-    sector: bestKeywords.length > 0 ? bestSector : "General Tech",
-    confidence: bestKeywords.length > 0 ? 0.6 : 0.1,
+    sector: isConfident ? bestSector : "General Tech",
+    confidence: isConfident ? 0.6 : 0.1,
     matchedKeywords: bestKeywords,
   };
 }
