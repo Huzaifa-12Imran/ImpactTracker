@@ -1,79 +1,27 @@
 # Contributing to Impact Tracker
 
-Thank you for your interest in contributing to Impact Tracker! This document explains how to set up your development environment and submit changes.
+First off, thank you for considering contributing to Impact Tracker! It's people like you that make open source such a great community.
 
----
+## 1. Where do I go from here?
+If you've noticed a bug or have a feature request, make sure to check our [Issues](../../issues) first. If it's not there, feel free to open a new issue.
 
-## Development Setup
-
-### Prerequisites
-
-- **Node.js 20+** — [Download](https://nodejs.org/)
-- **pnpm 9+** — `npm install -g pnpm`
-- **Docker** — For local PostgreSQL and Redis
-
-### Getting Started
-
-```bash
-# 1. Fork and clone the repo
-git clone https://github.com/YOUR_USERNAME/impact-tracker.git
-cd impact-tracker
-
-# 2. Install dependencies
-pnpm install
-
-# 3. Set up environment variables
-cp .env.example .env
-# Fill in required values (see .env.example for descriptions)
-
-# 4. Start infrastructure
-docker compose up -d
-
-# 5. Set up the database
-pnpm db:generate
-pnpm db:push
-
-# 6. Start development
-pnpm dev
+## 2. Fork & create a branch
+If this is something you think you can fix, then fork Impact Tracker and create a branch with a descriptive name.
+```sh
+git checkout -b new-feature-name
 ```
 
-### Project Structure
+## 3. Local Development
+1. Clone your fork and install dependencies via `pnpm install`.
+2. Copy `.env.example` to `.env` and configure your API keys (GitHub App, Gemini, Upstash).
+3. Start the services with Docker: `docker compose up -d`
+4. Run `pnpm db:push` and `pnpm db:generate`.
+5. Start development servers: `pnpm dev`
 
-This is a **Turborepo monorepo** with pnpm workspaces:
+## 4. Submitting a Pull Request
+- Make sure your code conforms to the existing style.
+- Update the README.md with details of changes to the interface or architecture, if applicable.
+- Once you are ready, submit your PR and we will review it as soon as possible!
 
-- `apps/api` — Express backend (port 4000)
-- `apps/web` — Next.js dashboard (port 3000)
-- `packages/*` — Shared libraries
-
-### Useful Commands
-
-```bash
-pnpm dev          # Start all apps in development mode
-pnpm build        # Build all packages and apps
-pnpm test         # Run all tests
-pnpm typecheck    # Type-check all packages
-pnpm db:studio    # Open Prisma Studio (database GUI)
-```
-
----
-
-## Submitting Changes
-
-1. Create a feature branch: `git checkout -b feature/my-change`
-2. Make your changes
-3. Run `pnpm typecheck && pnpm test` to verify
-4. Commit with a descriptive message
-5. Push and open a Pull Request
-
-### PR Guidelines
-
-- Keep PRs focused — one feature or fix per PR
-- Include tests for new scoring logic
-- Update documentation if changing API endpoints
-- Follow existing code style (TypeScript, ESM)
-
----
-
-## Code of Conduct
-
-Be respectful, inclusive, and constructive. We follow the [Contributor Covenant](https://www.contributor-covenant.org/).
+## 5. Code of Conduct
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.

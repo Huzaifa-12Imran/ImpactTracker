@@ -111,6 +111,11 @@ body {
 }
 
 /* --- Animations --- */
+@keyframes move-x {
+  from { left: -5%; }
+  to { left: 105%; }
+}
+
 @keyframes draw-line {
   from { width: 0; }
   to { width: 100%; }
@@ -135,7 +140,17 @@ body {
   animation: fade-in-up 0.4s ease-out forwards;
 }
 
-/* --- Code Block --- */
+/* --- Skeleton Loader --- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.skeleton {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: var(--color-slate-100);
+}
+
 .code-block {
   background: var(--color-jet-black);
   color: #a3e635; /* Acid Lime */

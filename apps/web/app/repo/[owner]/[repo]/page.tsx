@@ -132,12 +132,32 @@ export default function RepoDashboard() {
 
       {/* Pending Banner */}
       {isPending && (
-        <div className="mb-12 border border-jet-black bg-accent-500/10 p-6">
-          <div className="flex items-center gap-4">
-            <div className="h-3 w-3 bg-accent-500 animate-pulse" />
-            <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-jet-black">
-              ANALYSIS_IN_PROGRESS: {scoreData.repository.statusMessage?.toUpperCase() ?? "POLLING_DATA_STREAMS"}
+        <div className="mb-12 border border-jet-black bg-accent-500/10 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden relative">
+          {/* Subtle scanning line animation */}
+          <div className="absolute inset-0 pointer-events-none opacity-20">
+             <div className="absolute top-0 bottom-0 w-px bg-accent-500 animate-[move-x_4s_linear_infinite]" />
+          </div>
+
+          <div className="flex items-center gap-6 z-10">
+            <div className="relative">
+              <div className="h-4 w-4 bg-accent-500 rounded-full animate-ping opacity-75 absolute" />
+              <div className="h-4 w-4 bg-accent-500 rounded-full relative" />
             </div>
+            <div>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-accent-600 mb-1">
+                System_Status: Scanning
+              </div>
+              <div className="font-syne text-lg font-bold uppercase tracking-tighter text-jet-black">
+                {scoreData.repository.statusMessage?.replace(/_/g, ' ') ?? "POLLING DATA STREAMS"}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 z-10">
+            <div className="h-1 w-24 bg-slate-200 rounded-full overflow-hidden">
+              <div className="h-full bg-accent-500 animate-[draw-line_2s_ease-in-out_infinite]" />
+            </div>
+            <span className="font-mono text-[9px] font-bold text-slate-400">SYNC_V1.2</span>
           </div>
         </div>
       )}
@@ -183,7 +203,7 @@ export default function RepoDashboard() {
           </div>
         </div>
       ) : (
-        <SkeletonDashboard owner={owner} repo={repo} />
+        <SkeletonGrid />
       )}
 
       {/* Footer Meta */}
@@ -206,20 +226,53 @@ function SkeletonDashboard({ owner, repo }: { owner: string; repo: string }) {
         <div className="skeleton h-4 w-96" />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-4 space-y-4">
-          <div className="console-card h-80 bg-slate-50 border-slate-100 flex items-center justify-center">
-            <div className="skeleton h-48 w-48 rounded-full" />
+      <SkeletonGrid />
+    </div>
+  );
+}
+
+function SkeletonGrid() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-12">
+      <div className="lg:col-span-4 space-y-6">
+        <div className="console-card h-80 bg-white flex flex-col items-center justify-center p-8">
+          <div className="skeleton h-48 w-48 rounded-full mb-6" />
+          <div className="skeleton h-4 w-32" />
+        </div>
+        <div className="console-card h-64 bg-slate-50 border-dashed border-slate-300 flex items-center justify-center">
+          <div className="font-mono text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+            Awaiting_classification_results
           </div>
-          <div className="console-card h-64 border-slate-100" />
         </div>
-        <div className="lg:col-span-4 space-y-4">
-          <div className="console-card h-80 border-slate-100" />
-          <div className="console-card h-64 border-slate-100" />
+      </div>
+      <div className="lg:col-span-4 space-y-6">
+        <div className="console-card h-80 bg-slate-50 border-dashed border-slate-300 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-2 w-32 skeleton" />
+            <div className="h-2 w-24 skeleton" />
+            <div className="h-2 w-40 skeleton" />
+          </div>
         </div>
-        <div className="lg:col-span-4 space-y-4">
-          <div className="console-card h-80 border-slate-100" />
-          <div className="console-card h-64 border-slate-100" />
+        <div className="console-card h-64 bg-slate-50 border-dashed border-slate-300 flex items-center justify-center">
+           <div className="font-mono text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+            Gathering_history_nodes
+          </div>
+        </div>
+      </div>
+      <div className="lg:col-span-4 space-y-6">
+        <div className="console-card h-80 bg-slate-50 border-dashed border-slate-300 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+             <div className="h-24 w-40 skeleton" />
+             <div className="font-mono text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+              Mapping_geography
+            </div>
+          </div>
+        </div>
+        <div className="console-card h-64 bg-slate-50 border-dashed border-slate-300 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="skeleton h-4 w-48" />
+            <div className="skeleton h-4 w-32" />
+          </div>
         </div>
       </div>
     </div>

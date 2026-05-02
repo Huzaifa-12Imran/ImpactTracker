@@ -3,6 +3,7 @@
  *
  * Starts the Express server, registers routes, and boots BullMQ workers.
  */
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";

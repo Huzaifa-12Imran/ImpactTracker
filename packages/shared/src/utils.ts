@@ -68,9 +68,6 @@ export function computeContentHash(readme: string | null, topics: string[]): str
   return createHash("sha256").update(content).digest("hex");
 }
 
-/**
- * Rule-based sector classifier (fallback when AI is unavailable).
- */
 export function classifyByKeywords(topics: string[], readmeExcerpt: string | null): {
   sector: Sector;
   confidence: number;
@@ -87,7 +84,13 @@ export function classifyByKeywords(topics: string[], readmeExcerpt: string | nul
 
   for (const [sector, keywords] of Object.entries(SECTOR_KEYWORDS) as [Sector, string[]][]) {
     if (keywords.length === 0) continue;
-    const matched = keywords.filter(kw => searchText.includes(kw));
+    
+    // Use word boundaries to avoid matching substrings (e.g. "tailwind" matching "wind")
+    const matched = keywords.filter(kw => {
+      const regex = new RegExp(`\\b${kw}\\b`, "i");
+      return regex.test(searchText);
+    });
+
     const score = matched.length / keywords.length;
     if (score > bestScore) {
       bestScore = score;

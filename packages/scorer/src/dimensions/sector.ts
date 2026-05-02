@@ -20,7 +20,7 @@ export function scoreSectorRelevance(input: SectorInput): number {
 
   // General Tech gets minimal points
   if (sector === "General Tech") {
-    return Math.round(confidence * 5 * 100) / 100;
+    return Math.round(confidence * 12 * 100) / 100;
   }
 
   // Base score: 20 points for having a social-impact sector

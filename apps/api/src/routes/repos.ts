@@ -6,6 +6,118 @@ import type { ScoreResponse, ScoreHistoryEntry, RepoStatusResponse } from "@impa
 const router: Router = Router();
 
 /**
+ * GET /api/repos
+ * Return all repositories with their latest scores.
+ */
+router.get("/", async (_req: Request, res: Response): Promise<void> => {
+  const repos = await prisma.repository.findMany({
+    include: {
+      impactScores: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+    },
+    orderBy: { fullName: "asc" },
+  });
+
+  const response = repos.map((r) => ({
+    owner: r.owner,
+    name: r.name,
+    fullName: r.fullName,
+    description: r.description,
+    stars: r.stars,
+    language: r.language,
+    status: r.status,
+    score: r.impactScores[0]?.totalScore ?? null,
+    sector: r.impactScores[0]?.sector ?? null,
+  }));
+
+  res.json(response);
+});
+
+/**
+ * POST /api/repos/sync
+ * Manually sync all installations and repositories from GitHub.
+ */
+router.post("/sync", async (_req: Request, res: Response): Promise<void> => {
+  try {
+    console.log("[Sync] Starting manual sync...");
+    const { getGitHubApp } = await import("@impact/github-client");
+    const app = getGitHubApp();
+    console.log("[Sync] App instance created. Fetching installations...");
+    const { data: installations } = await app.octokit.request("GET /app/installations");
+    console.log(`[Sync] Found ${installations.length} installations.`);
+
+    let syncedCount = 0;
+
+    for (const installation of installations) {
+      const installId = installation.id;
+      console.log(`[Sync] Processing installation ${installId} for ${installation.account.login}...`);
+
+      await prisma.installation.upsert({
+        where: { githubInstallId: installId },
+        update: {
+          accountLogin: installation.account.login,
+          accountType: installation.account.type,
+        },
+        create: {
+          githubInstallId: installId,
+          accountLogin: installation.account.login,
+          accountType: installation.account.type,
+        },
+      });
+
+      console.log(`[Sync] Fetching repositories for installation ${installId}...`);
+      const octokit = await app.getInstallationOctokit(installId);
+      const { data: { repositories } } = await octokit.request("GET /installation/repositories");
+      console.log(`[Sync] Found ${repositories.length} repositories for ${installation.account.login}.`);
+
+      const analysisQueue = (await import("../queues/index.js")).getAnalysisQueue();
+      for (const repoData of repositories) {
+        console.log(`[Sync] Upserting & Enqueueing repo: ${repoData.full_name}`);
+        const repo = await prisma.repository.upsert({
+          where: { fullName: repoData.full_name },
+          update: {
+            githubId: repoData.id,
+            description: repoData.description,
+            stars: repoData.stargazers_count,
+            language: repoData.language,
+            installationId: installId,
+          },
+          create: {
+            fullName: repoData.full_name,
+            githubId: repoData.id,
+            owner: repoData.owner.login,
+            name: repoData.name,
+            description: repoData.description,
+            stars: repoData.stargazers_count,
+            language: repoData.language,
+            installationId: installId,
+            status: "PENDING",
+          },
+        });
+
+        // Add to analysis queue
+        await analysisQueue.add(`sync-${repoData.full_name}`, {
+          owner: repoData.owner.login,
+          repo: repoData.name,
+          installationId: installId,
+          fullAnalysis: true,
+        });
+
+        syncedCount++;
+      }
+    }
+
+    console.log(`[Sync] Completed. Synced ${syncedCount} total repositories.`);
+    res.json({ message: `Successfully synced ${syncedCount} repositories from ${installations.length} installations.` });
+  } catch (error) {
+    console.error("[Sync] Error during manual sync:", error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+/**
  * GET /api/repos/:owner/:repo/score
  * Return the current impact score for a repository.
  */
@@ -199,11 +311,13 @@ router.post("/:owner/:repo/analyze", async (req: Request, res: Response): Promis
   }
 
   const queue = getAnalysisQueue();
+  const force = req.query.force === "true";
   await queue.add(`manual-${fullName}`, {
     owner,
     repo,
     installationId: repository.installationId,
     fullAnalysis: true,
+    force,
   });
 
   await prisma.repository.update({

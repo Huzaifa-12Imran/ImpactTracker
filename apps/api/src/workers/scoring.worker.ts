@@ -76,7 +76,7 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         sectorConfidence = repo.impactScores[0].sectorConfidence ?? 0;
         sdgGoals = (repo.impactScores[0].sdgGoals ?? [9]) as SDGGoal[];
         sectorKeywords = repo.impactScores[0].sectorKeywords ?? [];
-      } else if (contentChanged || !repo.impactScores[0]) {
+      } else if (job.data.forceClassification || contentChanged || !repo.impactScores[0]) {
         // Content changed or first-time: run AI classification
         await prisma.repository.update({
           where: { id: repositoryId },

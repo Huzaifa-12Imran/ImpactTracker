@@ -6,11 +6,13 @@ export interface AnalysisJobData {
   repo: string;
   installationId: number;
   fullAnalysis: boolean; // true = first-time, false = incremental
+  force?: boolean;
 }
 
 export interface ScoringJobData {
   repositoryId: string;
   skipClassification: boolean; // true if content hash unchanged
+  forceClassification?: boolean; // true to bypass hash check
 }
 
 let analysisQueue: Queue<AnalysisJobData> | null = null;

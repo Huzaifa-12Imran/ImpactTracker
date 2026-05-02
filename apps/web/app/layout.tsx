@@ -34,7 +34,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
       </head>
-      <body className="min-h-screen font-sans selection:bg-accent-500 selection:text-jet-black">
+      <body className="min-h-screen font-sans selection:bg-accent-500 selection:text-jet-black" suppressHydrationWarning>
         <Navbar />
         <main>{children}</main>
         <Footer />
@@ -97,7 +97,7 @@ function Footer() {
           <div className="flex items-center gap-8 font-syne text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
             <Link href="/privacy" className="transition-colors hover:text-primary-600">Privacy</Link>
             <a href="https://github.com" className="transition-colors hover:text-primary-600">GitHub</a>
-            <span>© {new Date().getFullYear()}</span>
+            <span suppressHydrationWarning>© {new Date().getFullYear()}</span>
           </div>
           <p className="max-w-xs text-center text-[10px] leading-relaxed text-slate-400 md:text-right">
             TRACKING SOCIAL IMPACT FOR THE OPEN SOURCE ECOSYSTEM.

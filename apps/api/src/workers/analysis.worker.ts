@@ -123,6 +123,7 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
         await scoringQueue.add(`score-${fullName}`, {
           repositoryId: dbRepo.id,
           skipClassification: false,
+          forceClassification: job.data.force,
         });
 
         await job.updateProgress(100);

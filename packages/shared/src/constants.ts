@@ -35,7 +35,7 @@ export const SCORE_MAX = {
 export const SCORING_THRESHOLDS = {
   minClassificationConfidence: 0.7,
   ruleBasedConfidence: 0.6,
-  maxGeographyCountries: 15,
+  maxGeographyCountries: 5,
   maxFirstTimerRatio: 0.5,
   minReadmeLength: 500,
   maxIssueResponseHours: 48,
@@ -46,10 +46,10 @@ export const SCORING_THRESHOLDS = {
 export const SECTOR_KEYWORDS: Record<Sector, string[]> = {
   Health: ["health", "medical", "clinical", "hospital", "patient", "mhealth", "healthcare", "pharma", "diagnosis", "telemedicine", "ehr", "fhir"],
   Education: ["education", "learning", "school", "student", "teaching", "edtech", "mooc", "curriculum", "classroom", "lms", "elearning"],
-  Climate: ["climate", "environment", "carbon", "sustainability", "renewable", "solar", "wind", "emissions", "ecology", "biodiversity", "conservation"],
-  Humanitarian: ["humanitarian", "refugee", "disaster", "relief", "ngo", "nonprofit", "aid", "crisis", "poverty", "donation", "charity"],
-  "Civic Tech": ["civic", "government", "democracy", "voting", "election", "transparency", "opendata", "policy", "legislation", "govtech"],
-  Accessibility: ["accessibility", "a11y", "screen-reader", "wcag", "aria", "assistive", "disability", "inclusive-design", "captioning"],
+  Climate: ["climate", "environment", "carbon", "sustainability", "renewable", "solar", "wind", "emissions", "ecology", "biodiversity", "conservation", "green", "net-zero"],
+  Humanitarian: ["humanitarian", "refugee", "disaster", "relief", "ngo", "nonprofit", "aid", "crisis", "poverty", "donation", "charity", "philanthropy"],
+  "Civic Tech": ["civic", "government", "democracy", "voting", "election", "transparency", "opendata", "policy", "legislation", "govtech", "impact", "scoring", "measurement", "social-impact"],
+  Accessibility: ["accessibility", "a11y", "screen-reader", "wcag", "aria", "assistive", "disability", "inclusive-design", "captioning", "braille"],
   "General Tech": [],
 };
 
