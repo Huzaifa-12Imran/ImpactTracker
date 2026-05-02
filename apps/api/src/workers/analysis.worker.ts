@@ -77,16 +77,18 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
 
         // 6. Store all data in PostgreSQL
         await job.updateProgress(70);
-        // 6. Store to DB
-        await prisma.repository.update({
+        
+        const existingRepo = await prisma.repository.findUnique({
           where: { fullName },
-          data: {
-            statusMessage: "Storing analysis data...",
-          },
+          select: { id: true }
         });
+        
+        if (!existingRepo) {
+          throw new Error(`Repository ${fullName} not found in database`);
+        }
 
         const dbRepo = await prisma.repository.update({
-          where: { fullName },
+          where: { id: existingRepo.id },
           data: {
             githubId: metadata.githubId,
             description: metadata.description,
@@ -106,9 +108,9 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
                 where: {
                   githubLogin_repositoryId: {
                     githubLogin: c.login,
-                    repositoryId: 0, // Dummy, overridden by Prisma
+                    repositoryId: existingRepo.id,
                   },
-                },
+                } as any,
                 create: {
                   githubLogin: c.login,
                   rawLocation: c.location,

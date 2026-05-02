@@ -116,6 +116,7 @@ export const CITY_COUNTRY_MAP: Record<string, string> = {
 // Manual mapping for contributors who might have private or delayed profile locations
 export const USER_LOCATION_OVERRIDES: Record<string, string> = {
   "Huzaifa-12Imran": "PK",
+  "superman32432432": "PK",
 };
 
 export const BULK_INSTALL = { threshold: 20, delayPerJobMs: 30_000 } as const;

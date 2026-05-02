@@ -93,13 +93,14 @@ Partial credit for short READMEs: `(length / 500) × 5`
 
 ## 5. Community Health (0-10 pts)
 
-| Check | Points |
-|-------|--------|
-| Issue response time ≤ 48 hours | 4 |
-| PR merge rate ≥ 50% | 3 |
-| Active in last 30 days | 3 |
+| Check | Points | Description |
+|-------|--------|-------------|
+| Profile Health | 4 | GitHub Health Percentage (License, Templates, etc.) |
+| Response Time | 2 | Issue response time ≤ 48 hours |
+| Merge Rate | 2 | PR merge rate ≥ 50% |
+| Recent Activity | 2 | Active in the last 30 days |
 
-Partial credit with linear decay for near-threshold values.
+Partial credit with linear decay is applied for response time, merge rate, and activity. Profile health is a direct ratio of the GitHub health percentage.
 
 ---
 
