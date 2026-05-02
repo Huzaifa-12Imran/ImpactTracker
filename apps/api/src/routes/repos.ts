@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { prisma } from "@impact/database";
 import { getAnalysisQueue } from "../queues/index.js";
-import type { ScoreResponse, ScoreHistoryEntry, RepoStatusResponse } from "@impact/shared";
+import type { ScoreResponse, ScoreHistoryEntry, RepoStatusResponse, AnalysisStatus } from "@impact/shared";
 
 const router: Router = Router();
 

@@ -7,6 +7,7 @@ export interface AnalysisJobData {
   installationId: number;
   fullAnalysis: boolean; // true = first-time, false = incremental
   force?: boolean;
+  forceClassification?: boolean;
 }
 
 export interface ScoringJobData {
