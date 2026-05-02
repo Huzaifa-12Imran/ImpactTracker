@@ -40,7 +40,13 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
           },
         });
 
-        const octokit = await getInstallationOctokit(installationId);
+        let octokit;
+        if (installationId) {
+          octokit = await getInstallationOctokit(installationId);
+        } else {
+          const { getGitHubApp } = await import("@impact/github-client");
+          octokit = getGitHubApp().octokit as any;
+        }
 
         // 1. Fetch repo metadata
         await job.updateProgress(10);

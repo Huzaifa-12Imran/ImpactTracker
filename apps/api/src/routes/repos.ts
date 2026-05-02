@@ -140,8 +140,69 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
   });
 
   if (!repository) {
-    res.status(404).json({ error: "Repository not found. Install the GitHub App first." });
-    return;
+    try {
+      // 1. Check if repo exists on GitHub using App Octokit
+      const { getGitHubApp } = await import("@impact/github-client");
+      const app = getGitHubApp();
+      
+      const { data: repoData } = await app.octokit.request("GET /repos/{owner}/{repo}", {
+        owner,
+        repo,
+      });
+
+      if (repoData.visibility !== "public" && !repoData.permissions?.pull) {
+         res.status(403).json({ error: "Private repository. Install the GitHub App to grant access." });
+         return;
+      }
+
+      // 2. Create stub record
+      const newRepo = await prisma.repository.create({
+        data: {
+          fullName,
+          githubId: repoData.id,
+          owner: repoData.owner.login,
+          name: repoData.name,
+          description: repoData.description,
+          stars: repoData.stargazers_count,
+          language: repoData.language,
+          installationId: null, // Public analysis
+          status: "PENDING",
+          statusMessage: "On-demand analysis queued",
+        },
+      });
+
+      // 3. Queue analysis
+      const queue = getAnalysisQueue();
+      await queue.add(`ondemand-${fullName}`, {
+        owner,
+        repo,
+        installationId: null,
+        fullAnalysis: true,
+        force: false,
+      });
+
+      res.json({
+        repository: {
+          owner: newRepo.owner,
+          name: newRepo.name,
+          fullName: newRepo.fullName,
+          description: newRepo.description,
+          stars: newRepo.stars,
+          language: newRepo.language,
+          status: "PENDING",
+          statusMessage: "On-demand analysis queued",
+          readmeLength: 0,
+          hasContributing: false,
+          hasCodeOfConduct: false,
+        },
+        score: null,
+      });
+      return;
+    } catch (error) {
+      console.error("[OnDemand] Failed to fetch public repo:", error);
+      res.status(404).json({ error: "Repository not found. Ensure the owner and name are correct." });
+      return;
+    }
   }
 
   const latestScore = repository.impactScores[0] ?? null;
@@ -313,8 +374,8 @@ router.post("/:owner/:repo/analyze", async (req: Request, res: Response): Promis
     where: { fullName },
   });
 
-  if (!repository || !repository.installationId) {
-    res.status(404).json({ error: "Repository not found or app not installed" });
+  if (!repository) {
+    res.status(404).json({ error: "Repository not found" });
     return;
   }
 
