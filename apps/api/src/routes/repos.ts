@@ -143,7 +143,7 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
   // Auto-retry failed analysis
   if (repository?.status === "FAILED") {
     console.log(`[AutoRetry] Resetting failed repo: ${owner}/${repo}`);
-    const { getAnalysisQueue } = await import("../queues/index");
+    const { getAnalysisQueue } = await import("../queues/index.js");
     const analysisQueue = getAnalysisQueue();
     
     await prisma.repository.update({
