@@ -143,10 +143,10 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
   if (!repository) {
     try {
       console.log(`[OnDemand] Attempting to fetch public repo: ${owner}/${repo}`);
-      const { getAppOctokit } = await import("@impact/github-client");
-      const octokit = getAppOctokit();
+      const { Octokit } = await import("octokit");
+      const guestOctokit = new Octokit();
       
-      const { data: repoData } = await octokit.request("GET /repos/{owner}/{repo}", {
+      const { data: repoData } = await guestOctokit.request("GET /repos/{owner}/{repo}", {
         owner,
         repo,
       });
