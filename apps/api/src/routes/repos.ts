@@ -145,9 +145,14 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
     },
   });
 
-  // Auto-retry failed analysis
-  if (repository?.status === "FAILED") {
-    console.log(`[AutoRetry] Resetting failed repo: ${owner}/${repo}`);
+  console.log(`[Score] Repo: ${fullName}, Status: ${repository?.status || "NOT_FOUND"}`);
+
+  // Auto-retry failed or stuck analysis (stuck = PENDING for > 1 min)
+  const isStuck = repository?.status === "PENDING" && 
+                 (!repository.updatedAt || (Date.now() - new Date(repository.updatedAt).getTime() > 60000));
+
+  if (repository?.status === "FAILED" || isStuck) {
+    console.log(`[AutoRetry] Resetting ${isStuck ? "STUCK" : "FAILED"} repo: ${owner}/${repo}`);
     const { getAnalysisQueue } = await import("../queues/index.js");
     const analysisQueue = getAnalysisQueue();
     const timestamp = Date.now();
