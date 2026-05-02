@@ -113,6 +113,11 @@ export const CITY_COUNTRY_MAP: Record<string, string> = {
   "auckland": "NZ", "wellington": "NZ",
 };
 
+// Manual mapping for contributors who might have private or delayed profile locations
+export const USER_LOCATION_OVERRIDES: Record<string, string> = {
+  "Huzaifa-12Imran": "PK",
+};
+
 export const BULK_INSTALL = { threshold: 20, delayPerJobMs: 30_000 } as const;
 
 export const BADGE_DEFAULTS = { cacheTtlSeconds: 3600, cacheControlMaxAge: 3600 } as const;

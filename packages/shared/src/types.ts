@@ -134,6 +134,7 @@ export interface ScoreResponse {
     contributorCountries: ContributorCountryMap;
     firstTimerCount: number | null;
     totalContributors: number | null;
+    classificationSource: string | null;
     lastAnalyzedAt: string | null;
   } | null;
 }

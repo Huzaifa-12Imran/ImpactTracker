@@ -15,7 +15,7 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
   const worker = new Worker<AnalysisJobData>(
     "repo-analysis",
     async (job: Job<AnalysisJobData>) => {
-      const { owner, repo, installationId, fullAnalysis } = job.data;
+      const { owner, repo, installationId, fullAnalysis, force } = job.data;
       const fullName = `${owner}/${repo}`;
 
       console.log(`[Analysis] Starting ${fullAnalysis ? "full" : "incremental"} analysis: ${fullName}`);
@@ -60,10 +60,16 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
 
         // 4. Resolve contributor locations → country codes (3-tier strategy)
         await job.updateProgress(50);
-        const contributors = rawContributors.map((c) => ({
-          ...c,
-          resolvedCountry: resolveCountry(c.location),
-        }));
+        const contributors = rawContributors.map((c) => {
+          console.log(`[Analysis] Processing Contributor: "${c.login}" (Location: "${c.location}")`);
+          const resolved = resolveCountry(c.location, c.login);
+          console.log(`[Analysis] Result for "${c.login}": ${resolved}`);
+          return {
+            ...c,
+            resolvedCountry: resolved,
+          };
+        });
+        console.log(`[Analysis] Total contributors processed: ${contributors.length}`);
 
         // 5. Fetch community profile
         await job.updateProgress(60);
@@ -71,6 +77,7 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
 
         // 6. Store all data in PostgreSQL
         await job.updateProgress(70);
+        // 6. Store to DB
         await prisma.repository.update({
           where: { fullName },
           data: {
@@ -90,34 +97,34 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
             readmeContent,
             hasContributing: communityProfile?.hasContributing ?? false,
             hasCodeOfConduct: communityProfile?.hasCodeOfConduct ?? false,
+            hasIssueTemplate: communityProfile?.hasIssueTemplate ?? false,
+            hasPullRequestTemplate: communityProfile?.hasPullRequestTemplate ?? false,
+            healthPercentage: communityProfile?.healthPercentage ?? 0,
             statusMessage: "Preparing score computation...",
+            contributors: {
+              upsert: contributors.map((c) => ({
+                where: {
+                  githubLogin_repositoryId: {
+                    githubLogin: c.login,
+                    repositoryId: 0, // Dummy, overridden by Prisma
+                  },
+                },
+                create: {
+                  githubLogin: c.login,
+                  rawLocation: c.location,
+                  resolvedCountry: c.resolvedCountry,
+                  commitCount: c.commitCount ?? 0,
+                  isFirstTimer: c.isFirstTimer,
+                },
+                update: {
+                  rawLocation: c.location,
+                  resolvedCountry: c.resolvedCountry,
+                  commitCount: c.commitCount ?? 0,
+                },
+              })),
+            },
           },
         });
-
-        // Upsert contributors
-        for (const contrib of contributors) {
-          await prisma.contributor.upsert({
-            where: {
-              githubLogin_repositoryId: {
-                githubLogin: contrib.login,
-                repositoryId: dbRepo.id,
-              },
-            },
-            create: {
-              githubLogin: contrib.login,
-              repositoryId: dbRepo.id,
-              rawLocation: contrib.location,
-              resolvedCountry: contrib.resolvedCountry,
-              commitCount: contrib.commitCount,
-              isFirstTimer: contrib.isFirstTimer,
-            },
-            update: {
-              rawLocation: contrib.location,
-              resolvedCountry: contrib.resolvedCountry,
-              commitCount: contrib.commitCount,
-            },
-          });
-        }
 
         // 7. Enqueue scoring job
         await job.updateProgress(90);
@@ -125,7 +132,7 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
         await scoringQueue.add(`score-${fullName}`, {
           repositoryId: dbRepo.id,
           skipClassification: false,
-          forceClassification: job.data.force,
+          forceClassification: force,
         });
 
         await job.updateProgress(100);

@@ -48,6 +48,7 @@ export async function getContributors(
           username: contrib.login,
         });
         location = user.location;
+        console.log(`[GitHub API] User: ${contrib.login}, Raw Profile Location: "${location}"`);
       } catch {
         // User profile fetch failed — skip location
       }

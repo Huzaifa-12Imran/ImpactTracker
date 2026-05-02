@@ -20,6 +20,7 @@ import { startScoringWorker } from "./workers/scoring.worker.js";
 
 const app: express.Express = express();
 const PORT = process.env.PORT ?? 4000;
+console.log("DEBUG: API Code is REFRESHED - v2");
 
 // --- Middleware ---
 app.use(helmet({

@@ -1,12 +1,22 @@
 import type { Sector } from "./types.js";
-import { CITY_COUNTRY_MAP, SECTOR_KEYWORDS } from "./constants.js";
+import { CITY_COUNTRY_MAP, SECTOR_KEYWORDS, USER_LOCATION_OVERRIDES } from "./constants.js";
 import { createHash } from "crypto";
 
 /**
  * Resolve a free-text GitHub location to a 2-letter country code.
- * Three-tier strategy: direct match → city lookup → unknown.
+ * Four-tier strategy: manual override → direct match → city lookup → unknown.
  */
-export function resolveCountry(location: string | null | undefined): string | null {
+export function resolveCountry(location: string | null | undefined, login?: string): string | null {
+  // Tier 0: Manual Override (Case-insensitive)
+  if (login) {
+    const normalizedLogin = login.toLowerCase();
+    for (const [ovLogin, country] of Object.entries(USER_LOCATION_OVERRIDES)) {
+      if (ovLogin.toLowerCase() === normalizedLogin) {
+        return country;
+      }
+    }
+  }
+
   if (!location || location.trim().length === 0) return null;
 
   const cleaned = location.trim().toLowerCase();
@@ -49,11 +59,12 @@ function matchCountryDirect(input: string): string | null {
 }
 
 function matchCity(input: string): string | null {
-  // Try the whole string first
-  if (CITY_COUNTRY_MAP[input]) return CITY_COUNTRY_MAP[input];
+  // Try the whole string first (normalized)
+  const normalized = input.toLowerCase().trim();
+  if (CITY_COUNTRY_MAP[normalized]) return CITY_COUNTRY_MAP[normalized];
 
-  // Try each comma-separated segment
-  const parts = input.split(",").map(p => p.trim());
+  // Try segments separated by comma or period
+  const parts = input.split(/[,\.]/).map((p) => p.trim().toLowerCase());
   for (const part of parts) {
     if (CITY_COUNTRY_MAP[part]) return CITY_COUNTRY_MAP[part];
   }

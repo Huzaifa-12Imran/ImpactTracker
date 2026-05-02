@@ -118,6 +118,11 @@ export function startScoringWorker(): Worker<ScoringJobData> {
       const sdgWeightOverrides = await loadSDGWeightOverrides();
 
       // Compute full impact score
+      console.log(`[Scoring] Inputs for ${repo.fullName}: Geo Count: ${repo.contributors.length}, First Country: ${repo.contributors[0]?.resolvedCountry}`);
+      
+      console.log(`[Scoring] Repo ${repo.fullName} has ${repo.contributors.length} contributors.`);
+      repo.contributors.forEach(c => console.log(`[Scoring] - ${c.githubLogin}: ${c.resolvedCountry}`));
+      
       const scoreResult = computeImpactScore({
         sector,
         sectorConfidence,
@@ -133,7 +138,14 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         topics: repo.topics,
         hasContributing: repo.hasContributing,
         hasCodeOfConduct: repo.hasCodeOfConduct,
-        communityProfile: null,
+        communityProfile: {
+          hasCodeOfConduct: repo.hasCodeOfConduct,
+          hasContributing: repo.hasContributing,
+          hasIssueTemplate: repo.hasIssueTemplate,
+          hasPullRequestTemplate: repo.hasPullRequestTemplate,
+          hasLicense: !!repo.license,
+          healthPercentage: repo.healthPercentage,
+        },
         avgIssueResponseHours: null,
         prMergeRate: null,
         lastActivityDate: repo.updatedAt,
