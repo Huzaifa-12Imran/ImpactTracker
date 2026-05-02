@@ -71,6 +71,7 @@ export function getAppOctokit(): Octokit {
     auth: {
       appId,
       privateKey: decodedKey,
+      type: "app", // Force App-level authentication
     },
     throttle: {
       onRateLimit: (retryAfter: number) => {
