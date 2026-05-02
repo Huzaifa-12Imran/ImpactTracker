@@ -128,7 +128,7 @@ router.post("/sync", async (req: Request, res: Response): Promise<void> => {
 router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<void> => {
   const owner = req.params.owner as string;
   const repo = req.params.repo as string;
-  const fullName = `${owner}/${repo}`;
+  const fullName = `${owner}/${repo}`.toLowerCase();
 
   const repository = await prisma.repository.findUnique({
     where: { fullName },
@@ -186,8 +186,8 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
         data: {
           fullName,
           githubId: repoData.id,
-          owner,
-          name: repo,
+          owner: repoData.owner.login, // Use canonical name from GitHub
+          name: repoData.name,         // Use canonical name from GitHub
           description: repoData.description,
           stars: repoData.stargazers_count,
           language: repoData.language,
