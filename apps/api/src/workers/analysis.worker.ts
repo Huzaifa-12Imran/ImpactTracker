@@ -19,6 +19,7 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
       const fullName = `${owner}/${repo}`;
 
       console.log(`[Analysis] Starting ${fullAnalysis ? "full" : "incremental"} analysis: ${fullName}`);
+      console.log(`[Analysis] Installation ID: ${installationId || "NONE (Public Repo Mode)"}`);
 
       try {
         // Update status
@@ -31,22 +32,27 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
             fullName,
             installationId,
             status: "IN_PROGRESS",
-            statusMessage: "Fetching repository data...",
+            statusMessage: "Initializing analysis...",
           },
           update: {
             status: "IN_PROGRESS",
-            statusMessage: "Fetching repository data...",
+            statusMessage: "Initializing analysis...",
             installationId,
           },
         });
 
+        console.log(`[Analysis] Preparing Octokit for ${fullName}...`);
         let octokit;
         if (installationId) {
+          console.log(`[Analysis] Using Installation Auth: ${installationId}`);
           octokit = await getInstallationOctokit(installationId);
         } else {
+          console.log(`[Analysis] Using App Master Auth (On-Demand Mode)`);
           const { getAppOctokit } = await import("@impact/github-client");
           octokit = getAppOctokit();
         }
+
+        console.log(`[Analysis] Octokit ready. Starting data fetch for ${fullName}...`);
 
         // 1. Fetch repo metadata
         await job.updateProgress(10);
