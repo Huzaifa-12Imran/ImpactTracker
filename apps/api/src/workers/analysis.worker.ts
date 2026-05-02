@@ -169,12 +169,16 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
     {
       connection: getRedis(),
       concurrency: 2,
+      stalledInterval: 10_000, // Check for stalled jobs every 10s
+      maxStalledCount: 3,
       limiter: {
         max: 10,
-        duration: 60_000, // Max 10 jobs per minute
+        duration: 60_000,
       },
     }
   );
+
+  console.log("[Analysis Worker] Initialized and waiting for jobs...");
 
   worker.on("failed", (job, err) => {
     console.error(`[Analysis Worker] Job ${job?.id} failed:`, err.message);
