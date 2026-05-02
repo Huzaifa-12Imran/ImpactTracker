@@ -1,10 +1,12 @@
 # 🌍 Impact Tracker
 
-**Measure the real-world social impact of open source repositories.**
+**Quantifying the Social Pulse of Open Source.**
 
-Impact Tracker is a GitHub App that classifies projects by sector (Health, Education, Climate, Civic Tech, Accessibility), scores contributor geographic diversity, tracks first-time contributors, and generates embeddable badges — all powered by AI and the GitHub API.
+Impact Tracker is a next-generation GitHub App that analyzes repositories to measure their social impact. Using AI-driven classification, geographic diversity mapping, and community health scoring, we help organizations and contributors understand the real-world value of their code.
 
-[![CI](https://github.com/Huzaifa-12Imran/ImpactTracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Huzaifa-12Imran/ImpactTracker/actions/workflows/ci.yml)
+[![Impact Score](http://localhost:4000/api/badge/Huzaifa-12Imran/ImpactTracker.svg)](http://localhost:3000/repo/Huzaifa-12Imran/ImpactTracker)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/Huzaifa-12Imran/ImpactTracker/ci.yml?branch=main)](https://github.com/Huzaifa-12Imran/ImpactTracker/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
