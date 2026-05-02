@@ -44,12 +44,17 @@ export default function RepoDashboard() {
         getRepoContributors(owner, repo),
       ]);
 
-      if (score.status === "fulfilled") setScoreData(score.value);
-      else setError("Repository not found. Install the GitHub App first.");
+      if (score.status === "fulfilled") {
+        setScoreData(score.value);
+        setError(null);
+      } else {
+        const errorMsg = (score.reason as Error).message;
+        setError(errorMsg.includes("Install the GitHub App") ? errorMsg : "Repository not found or analysis failed");
+      }
 
       if (hist.status === "fulfilled") setHistory(hist.value.history);
       if (contribs.status === "fulfilled") setContributors(contribs.value);
-    } catch {
+    } catch (err) {
       setError("Failed to load repository data");
     } finally {
       setLoading(false);
