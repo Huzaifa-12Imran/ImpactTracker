@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface Repository {
@@ -15,20 +16,29 @@ interface Repository {
   sector: string | null;
 }
 
-/**
- * User Dashboard — /dashboard
- * Shows all repos with the app installed and their scores.
- */
-export default function DashboardPage() {
+function DashboardContent() {
   const [repos, setRepos] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const fetchRepos = async () => {
+  const fetchRepos = async (token: string) => {
     setLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-      const res = await fetch(`${apiUrl}/api/repos`);
+      const res = await fetch(`${apiUrl}/api/repos`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (res.status === 401) {
+        localStorage.removeItem("gh_token");
+        router.push("/login");
+        return;
+      }
+
       const data = await res.json();
       setRepos(data);
     } catch (error) {
@@ -39,11 +49,19 @@ export default function DashboardPage() {
   };
 
   const handleSync = async () => {
+    const token = localStorage.getItem("gh_token");
+    if (!token) return;
+
     setSyncing(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-      await fetch(`${apiUrl}/api/repos/sync?force=true`, { method: "POST" });
-      await fetchRepos();
+      await fetch(`${apiUrl}/api/repos/sync?force=true`, { 
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      await fetchRepos(token);
     } catch (error) {
       console.error("Sync failed:", error);
     } finally {
@@ -52,19 +70,32 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchRepos();
-  }, []);
+    const tokenFromUrl = searchParams.get("token");
+    let token = tokenFromUrl || localStorage.getItem("gh_token");
+
+    if (tokenFromUrl) {
+      localStorage.setItem("gh_token", tokenFromUrl);
+      // Clean up URL
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
+
+    if (!token) {
+      router.push("/login");
+    } else {
+      fetchRepos(token);
+    }
+  }, [searchParams, router]);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="font-syne text-3xl font-bold uppercase tracking-tighter text-jet-black">Your Repositories</h1>
           <p className="mt-1 font-sans text-sm font-medium text-slate-500">
-            Impact scores for all repositories with the GitHub App installed.
+            Impact scores for your authorized GitHub repositories.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={handleSync}
             disabled={syncing}
@@ -141,3 +172,16 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+

@@ -23,10 +23,10 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
 }
 
 /**
- * Validate GitHub OAuth session token (simplified).
- * In production, replace with proper JWT session validation.
+ * Validate GitHub OAuth session token.
+ * Fetches user profile from GitHub to verify the token.
  */
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -34,7 +34,34 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
     return;
   }
 
-  // Store token on request for downstream use
-  (req as Request & { userToken?: string }).userToken = authHeader.replace("Bearer ", "");
-  next();
+  const token = authHeader.replace("Bearer ", "");
+
+  try {
+    const userRes = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+
+    if (!userRes.ok) {
+      res.status(401).json({ error: "Invalid or expired GitHub token" });
+      return;
+    }
+
+    const userData = (await userRes.json()) as { login: string; id: number };
+    
+    // Store user info on request
+    (req as any).user = {
+      login: userData.login,
+      id: userData.id,
+      token: token,
+    };
+
+    next();
+  } catch (error) {
+    console.error("[Auth] Token verification failed:", error);
+    res.status(500).json({ error: "Internal server error during authentication" });
+  }
 }
+

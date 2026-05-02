@@ -1,16 +1,29 @@
 import { Router, type Request, type Response } from "express";
 import { prisma } from "@impact/database";
 import { getAnalysisQueue } from "../queues/index.js";
+import { requireAuth } from "../middleware/auth.js";
 import type { ScoreResponse, ScoreHistoryEntry, RepoStatusResponse, AnalysisStatus } from "@impact/shared";
 
 const router: Router = Router();
 
 /**
  * GET /api/repos
- * Return all repositories with their latest scores.
+ * Return repositories owned by or accessible to the authenticated user.
  */
-router.get("/", async (_req: Request, res: Response): Promise<void> => {
+router.get("/", requireAuth, async (req: Request, res: Response): Promise<void> => {
+  const user = (req as any).user;
+
   const repos = await prisma.repository.findMany({
+    where: {
+      OR: [
+        { owner: user.login },
+        { 
+          installationId: { not: null },
+          // Note: In a more complex setup, we'd check installation permissions.
+          // For now, we match repositories associated with the user's installations.
+        }
+      ]
+    },
     include: {
       impactScores: {
         orderBy: { createdAt: "desc" },
@@ -20,7 +33,19 @@ router.get("/", async (_req: Request, res: Response): Promise<void> => {
     orderBy: { fullName: "asc" },
   });
 
-  const response = repos.map((r) => ({
+  // Further filter: If it's an installation, ensure the installation belongs to the user
+  const installations = await prisma.installation.findMany({
+    where: { accountLogin: user.login }
+  });
+  const userInstallIds = installations.map(i => i.githubInstallId);
+
+  const filteredRepos = repos.filter(r => {
+    if (r.owner === user.login) return true;
+    if (r.installationId && userInstallIds.includes(r.installationId)) return true;
+    return false;
+  });
+
+  const response = filteredRepos.map((r) => ({
     owner: r.owner,
     name: r.name,
     fullName: r.fullName,
@@ -37,9 +62,9 @@ router.get("/", async (_req: Request, res: Response): Promise<void> => {
 
 /**
  * POST /api/repos/sync
- * Manually sync all installations and repositories from GitHub.
  */
-router.post("/sync", async (req: Request, res: Response): Promise<void> => {
+router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<void> => {
+
   try {
     const force = req.query.force === "true";
     console.log(`[Sync] Starting manual sync... (Force: ${force})`);
