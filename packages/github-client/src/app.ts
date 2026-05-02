@@ -50,12 +50,39 @@ export function getGitHubApp(): App {
   return appInstance;
 }
 
+import { createAppAuth } from "@octokit/auth-app";
 /**
  * Get an authenticated Octokit instance for the App itself (using JWT).
  */
 export function getAppOctokit(): Octokit {
-  const app = getGitHubApp();
-  return app.octokit as unknown as Octokit;
+  const appId = process.env.GITHUB_APP_ID;
+  const privateKey = process.env.GITHUB_PRIVATE_KEY;
+  
+  if (!appId || !privateKey) {
+    throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY for App Octokit");
+  }
+
+  const decodedKey = privateKey.includes("BEGIN")
+    ? privateKey
+    : Buffer.from(privateKey, "base64").toString("utf-8");
+
+  return new ThrottledOctokit({
+    authStrategy: createAppAuth,
+    auth: {
+      appId,
+      privateKey: decodedKey,
+    },
+    throttle: {
+      onRateLimit: (retryAfter: number) => {
+        console.warn(`[App Octokit] Rate limit hit. Retrying after ${retryAfter}s`);
+        return true;
+      },
+      onSecondaryRateLimit: (retryAfter: number) => {
+        console.warn(`[App Octokit] Secondary rate limit hit. Retrying after ${retryAfter}s`);
+        return true;
+      },
+    },
+  }) as unknown as Octokit;
 }
 
 /**
