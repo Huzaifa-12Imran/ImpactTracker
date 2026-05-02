@@ -52,30 +52,32 @@ router.post("/sync", async (_req: Request, res: Response): Promise<void> => {
 
     for (const installation of installations) {
       const installId = installation.id;
-      console.log(`[Sync] Processing installation ${installId} for ${installation.account.login}...`);
+      const accountLogin = installation.account?.login ?? "unknown";
+      const accountType = installation.account?.type ?? "unknown";
+      console.log(`[Sync] Processing installation ${installId} for ${accountLogin}...`);
 
       await prisma.installation.upsert({
         where: { githubInstallId: installId },
         update: {
-          accountLogin: installation.account.login,
-          accountType: installation.account.type,
+          accountLogin,
+          accountType,
         },
         create: {
           githubInstallId: installId,
-          accountLogin: installation.account.login,
-          accountType: installation.account.type,
+          accountLogin,
+          accountType,
         },
       });
 
       console.log(`[Sync] Fetching repositories for installation ${installId}...`);
       const octokit = await app.getInstallationOctokit(installId);
       const { data: { repositories } } = await octokit.request("GET /installation/repositories");
-      console.log(`[Sync] Found ${repositories.length} repositories for ${installation.account.login}.`);
+      console.log(`[Sync] Found ${repositories.length} repositories for ${accountLogin}.`);
 
       const analysisQueue = (await import("../queues/index.js")).getAnalysisQueue();
       for (const repoData of repositories) {
         console.log(`[Sync] Upserting & Enqueueing repo: ${repoData.full_name}`);
-        const repo = await prisma.repository.upsert({
+        await prisma.repository.upsert({
           where: { fullName: repoData.full_name },
           update: {
             githubId: repoData.id,
