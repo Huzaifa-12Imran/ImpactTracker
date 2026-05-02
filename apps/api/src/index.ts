@@ -46,11 +46,12 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // --- Start Server & Workers ---
-app.listen(PORT, () => {
+app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`
   ╔══════════════════════════════════════════╗
   ║   🌍 Impact Tracker API                 ║
-  ║   Running on http://localhost:${PORT}       ║
+  ║   Running on port: ${PORT}                ║
+  ║   Address: 0.0.0.0                      ║
   ║   Environment: ${process.env.NODE_ENV ?? "development"}          ║
   ╚══════════════════════════════════════════╝
   `);
