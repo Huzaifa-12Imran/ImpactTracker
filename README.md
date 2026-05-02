@@ -4,7 +4,7 @@
 
 Impact Tracker is a next-generation GitHub App that analyzes repositories to measure their social impact. Using AI-driven classification, geographic diversity mapping, and community health scoring, we help organizations and contributors understand the real-world value of their code.
 
-[![Impact Score](http://localhost:4000/api/badge/Huzaifa-12Imran/ImpactTracker.svg)](http://localhost:3000/repo/Huzaifa-12Imran/ImpactTracker)
+[![Impact Score](https://site--impact-api--sz5jmqgz2jbh.code.run/api/badge/Huzaifa-12Imran/ImpactTracker.svg)](https://site--impact-dashboard--sz5jmqgz2jbh.code.run/repo/Huzaifa-12Imran/ImpactTracker)
 [![CI Status](https://img.shields.io/github/actions/workflow/status/Huzaifa-12Imran/ImpactTracker/ci.yml?branch=main)](https://github.com/Huzaifa-12Imran/ImpactTracker/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -88,7 +88,7 @@ The API runs on `http://localhost:4000` and the dashboard on `http://localhost:3
 Add an impact score badge to your README:
 
 ```markdown
-[![Impact Score](https://api.impact-tracker.dev/api/badge/OWNER/REPO.svg)](https://impact-tracker.dev/repo/OWNER/REPO)
+[![Impact Score](https://site--impact-api--sz5jmqgz2jbh.code.run/api/badge/OWNER/REPO.svg)](https://site--impact-dashboard--sz5jmqgz2jbh.code.run/repo/OWNER/REPO)
 ```
 
 **Badge styles:**
