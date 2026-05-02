@@ -63,13 +63,17 @@ export function getAppOctokit(): Octokit {
   }
 
   const decodedKey = privateKey.includes("-----BEGIN")
-    ? privateKey
-    : Buffer.from(privateKey, "base64").toString("utf-8");
+    ? privateKey.replace(/\\n/g, "\n").trim()
+    : Buffer.from(privateKey, "base64").toString("utf-8").trim();
+
+  const finalKey = decodedKey.startsWith('"') && decodedKey.endsWith('"')
+    ? decodedKey.slice(1, -1).replace(/\\n/g, "\n")
+    : decodedKey;
 
   // Stage 1: Create an auth instance to get the JWT
   const auth = createAppAuth({
     appId,
-    privateKey: decodedKey,
+    privateKey: finalKey,
   });
 
   // Stage 2: Return a throttled Octokit that uses the JWT as a static token
