@@ -57,29 +57,32 @@ import { createAppAuth } from "@octokit/auth-app";
 export function getAppOctokit(): Octokit {
   const appId = process.env.GITHUB_APP_ID;
   const privateKey = process.env.GITHUB_PRIVATE_KEY;
-  
+
   if (!appId || !privateKey) {
-    throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY for App Octokit");
+    throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY");
   }
 
-  const decodedKey = privateKey.includes("BEGIN")
+  const decodedKey = privateKey.includes("-----BEGIN")
     ? privateKey
     : Buffer.from(privateKey, "base64").toString("utf-8");
 
+  // Stage 1: Create an auth instance to get the JWT
+  const auth = createAppAuth({
+    appId,
+    privateKey: decodedKey,
+  });
+
+  // Stage 2: Return a throttled Octokit that uses the JWT as a static token
+  // This prevents Octokit from trying to "find" an installation ID
   return new ThrottledOctokit({
-    authStrategy: createAppAuth,
-    auth: {
-      appId,
-      privateKey: decodedKey,
-      type: "app", // Force App-level authentication
-    },
+    authStrategy: () => auth({ type: "app" }), 
     throttle: {
       onRateLimit: (retryAfter: number) => {
-        console.warn(`[App Octokit] Rate limit hit. Retrying after ${retryAfter}s`);
+        console.warn(`[GitHub App] Rate limit hit, retrying after ${retryAfter}s`);
         return true;
       },
       onSecondaryRateLimit: (retryAfter: number) => {
-        console.warn(`[App Octokit] Secondary rate limit hit. Retrying after ${retryAfter}s`);
+        console.warn(`[GitHub App] Secondary rate limit hit, retrying after ${retryAfter}s`);
         return true;
       },
     },
