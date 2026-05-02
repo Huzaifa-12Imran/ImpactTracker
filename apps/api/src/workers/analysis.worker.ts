@@ -44,8 +44,8 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
         if (installationId) {
           octokit = await getInstallationOctokit(installationId);
         } else {
-          const { getGitHubApp } = await import("@impact/github-client");
-          octokit = getGitHubApp().octokit as any;
+          const { getAppOctokit } = await import("@impact/github-client");
+          octokit = getAppOctokit();
         }
 
         // 1. Fetch repo metadata

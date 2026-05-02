@@ -51,6 +51,14 @@ export function getGitHubApp(): App {
 }
 
 /**
+ * Get an authenticated Octokit instance for the App itself (using JWT).
+ */
+export function getAppOctokit(): Octokit {
+  const app = getGitHubApp();
+  return app.octokit as unknown as Octokit;
+}
+
+/**
  * Get an authenticated Octokit instance for a specific installation.
  */
 export async function getInstallationOctokit(installationId: number): Promise<Octokit> {
