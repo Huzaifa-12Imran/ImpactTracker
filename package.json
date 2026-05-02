@@ -13,7 +13,7 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "turbo dev",
-    "build": "pnpm db:generate && turbo build",
+    "build": "pnpm db:generate && turbo build --no-cache",
     "start": "pnpm --filter @impact/api start",
     "start:api": "pnpm --filter @impact/api start",
     "start:web": "pnpm --filter @impact/web start",
