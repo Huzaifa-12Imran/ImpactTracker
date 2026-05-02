@@ -126,7 +126,8 @@ router.post("/sync", async (req: Request, res: Response): Promise<void> => {
  * Return the current impact score for a repository.
  */
 router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<void> => {
-  const { owner, repo } = req.params;
+  const owner = req.params.owner as string;
+  const repo = req.params.repo as string;
   const fullName = `${owner}/${repo}`;
 
   const repository = await prisma.repository.findUnique({
@@ -160,8 +161,8 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
         data: {
           fullName,
           githubId: repoData.id,
-          owner: owner as string,
-          name: repo as string,
+          owner,
+          name: repo,
           description: repoData.description,
           stars: repoData.stargazers_count,
           language: repoData.language,
@@ -174,8 +175,8 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
       // 3. Queue analysis
       const queue = getAnalysisQueue();
       await queue.add(`ondemand-${fullName}`, {
-        owner: owner as string,
-        repo: repo as string,
+        owner,
+        repo,
         installationId: null,
         fullAnalysis: true,
         force: false,
@@ -231,7 +232,7 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
             docsAccessibility: latestScore.docsAccessibility,
             communityHealth: latestScore.communityHealth,
           },
-          sector: latestScore.sector as ScoreResponse["score"] extends null ? never : NonNullable<ScoreResponse["score"]>["sector"],
+          sector: latestScore.sector as any,
           sectorConfidence: latestScore.sectorConfidence,
           sdgGoals: latestScore.sdgGoals,
           sectorKeywords: latestScore.sectorKeywords,
@@ -384,7 +385,7 @@ router.post("/:owner/:repo/analyze", async (req: Request, res: Response): Promis
   await queue.add(`manual-${fullName}`, {
     owner: owner as string,
     repo: repo as string,
-    installationId: (repository.installationId as number | null) ?? undefined,
+    installationId: (repository.installationId as number | null) ?? null,
     fullAnalysis: true,
     force,
   });
