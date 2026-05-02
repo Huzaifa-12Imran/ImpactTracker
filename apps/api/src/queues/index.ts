@@ -4,7 +4,7 @@ import { getRedis } from "../lib/redis.js";
 export interface AnalysisJobData {
   owner: string;
   repo: string;
-  installationId: number;
+  installationId: number | null;
   fullAnalysis: boolean; // true = first-time, false = incremental
   force?: boolean;
   forceClassification?: boolean;

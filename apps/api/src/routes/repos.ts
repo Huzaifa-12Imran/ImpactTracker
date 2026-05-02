@@ -160,8 +160,8 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
         data: {
           fullName,
           githubId: repoData.id,
-          owner: repoData.owner.login,
-          name: repoData.name,
+          owner: owner as string,
+          name: repo as string,
           description: repoData.description,
           stars: repoData.stargazers_count,
           language: repoData.language,
@@ -174,8 +174,8 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
       // 3. Queue analysis
       const queue = getAnalysisQueue();
       await queue.add(`ondemand-${fullName}`, {
-        owner,
-        repo,
+        owner: owner as string,
+        repo: repo as string,
         installationId: null,
         fullAnalysis: true,
         force: false,
@@ -382,9 +382,9 @@ router.post("/:owner/:repo/analyze", async (req: Request, res: Response): Promis
   const queue = getAnalysisQueue();
   const force = req.query.force === "true";
   await queue.add(`manual-${fullName}`, {
-    owner,
-    repo,
-    installationId: repository.installationId,
+    owner: owner as string,
+    repo: repo as string,
+    installationId: (repository.installationId as number | null) ?? undefined,
     fullAnalysis: true,
     force,
   });
