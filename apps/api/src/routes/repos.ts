@@ -130,8 +130,13 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
   const repo = req.params.repo as string;
   const fullName = `${owner}/${repo}`.toLowerCase();
 
-  const repository = await prisma.repository.findUnique({
-    where: { fullName },
+  const repository = await prisma.repository.findFirst({
+    where: { 
+      fullName: {
+        equals: fullName,
+        mode: 'insensitive'
+      }
+    },
     include: {
       impactScores: {
         orderBy: { createdAt: "desc" },
