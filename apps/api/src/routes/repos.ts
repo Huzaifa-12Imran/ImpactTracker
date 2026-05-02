@@ -142,6 +142,7 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
 
   if (!repository) {
     try {
+      console.log(`[OnDemand] Attempting to fetch public repo: ${owner}/${repo}`);
       // 1. Check if repo exists on GitHub using App Octokit
       const { getGitHubApp } = await import("@impact/github-client");
       const app = getGitHubApp();
@@ -200,7 +201,7 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
       });
       return;
     } catch (error) {
-      console.error("[OnDemand] Failed to fetch public repo:", error);
+      console.error(`[OnDemand] Failed to fetch public repo ${owner}/${repo}:`, error);
       res.status(404).json({ error: "Repository not found. Ensure the owner and name are correct." });
       return;
     }
