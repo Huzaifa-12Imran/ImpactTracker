@@ -49,7 +49,7 @@ function DashboardContent() {
   };
 
   const handleSync = async () => {
-    const token = localStorage.getItem("gh_token");
+    const token = sessionStorage.getItem("gh_token");
     if (!token) return;
 
     setSyncing(true);
@@ -71,10 +71,10 @@ function DashboardContent() {
 
   useEffect(() => {
     const tokenFromUrl = searchParams.get("token");
-    let token = tokenFromUrl || localStorage.getItem("gh_token");
+    let token = tokenFromUrl || sessionStorage.getItem("gh_token");
 
     if (tokenFromUrl) {
-      localStorage.setItem("gh_token", tokenFromUrl);
+      sessionStorage.setItem("gh_token", tokenFromUrl);
       // Clean up URL
       window.history.replaceState({}, document.title, "/dashboard");
     }

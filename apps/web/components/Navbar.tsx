@@ -10,12 +10,12 @@ export function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("gh_token");
+    const token = sessionStorage.getItem("gh_token");
     setIsLoggedIn(!!token);
   }, [pathname]);
 
   const handleSignOut = () => {
-    localStorage.removeItem("gh_token");
+    sessionStorage.removeItem("gh_token");
     setIsLoggedIn(false);
     router.push("/");
   };

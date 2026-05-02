@@ -30,7 +30,13 @@ export default function LoginPage() {
             </svg>
             <span>CONTINUE WITH GITHUB</span>
           </a>
+          
+          <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            Note: We will use your active browser session on GitHub.com to authenticate. 
+            If you wish to use a different account, please sign out of GitHub first.
+          </p>
         </div>
+
 
         <div className="mt-10 border-t border-slate-100 pt-8">
           <div className="flex flex-col gap-4 text-left">
