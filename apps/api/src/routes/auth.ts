@@ -11,14 +11,23 @@ const GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token";
  */
 router.get("/github", (_req: Request, res: Response): void => {
   const clientId = process.env.GITHUB_CLIENT_ID;
-  const redirectUri = `${process.env.API_URL ?? "http://localhost:4000"}/api/auth/github/callback`;
+  const apiUrl = process.env.API_URL || "http://localhost:4000";
+  const redirectUri = `${apiUrl}/api/auth/github/callback`;
+
+  if (!clientId) {
+    console.error("[Auth] CRITICAL: GITHUB_CLIENT_ID is not defined in environment variables.");
+    res.status(500).json({ error: "Server configuration error: Missing Client ID" });
+    return;
+  }
 
   // Scopes: repo (private repo access), read:user, user:email
   const scope = "repo read:user user:email";
 
   const authUrl = `${GITHUB_OAUTH_URL}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
   
-  console.log("[Auth] Redirecting to GitHub with redirect_uri:", redirectUri);
+  console.log("[Auth] Redirecting to GitHub:");
+  console.log("  - Client ID:", clientId.substring(0, 5) + "...");
+  console.log("  - Redirect URI:", redirectUri);
 
   res.redirect(authUrl);
 });
