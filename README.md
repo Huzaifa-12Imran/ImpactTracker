@@ -24,6 +24,13 @@ Impact Tracker is a GitHub App that classifies projects by sector (Health, Educa
 
 ---
 
+## 🏛️ Social Impact & Civic Mission
+
+Impact Tracker is built with a primary focus on **Civic Technology** and **Social Transparency**. By providing quantifiable metrics for open-source social impact, we aim to:
+- **Democratize Data**: Make impact metrics accessible to non-profits and community-driven projects.
+- **Support Global Goals**: Align open-source work with the **United Nations Sustainable Development Goals (SDGs)**, specifically Goal 9 (Industry, Innovation, and Infrastructure) and Goal 17 (Partnerships for the Goals).
+- **Inclusion & Diversity**: Promote geographic equity in software development by tracking contributor diversity.
+
 ## Features
 
 - **🧬 AI Sector Classification** — Automatically classifies repos using Google Gemini AI

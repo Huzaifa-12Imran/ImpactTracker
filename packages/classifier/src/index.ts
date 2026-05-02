@@ -89,9 +89,11 @@ async function tryGemini(prompt: string): Promise<Omit<ClassificationResult, "so
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    return parseClassificationResponse(text);
+    const parsed = parseClassificationResponse(text);
+    console.log(`[Classifier] Gemini result for repo: ${parsed?.sector} (Confidence: ${parsed?.confidence})`);
+    return parsed;
   } catch (error) {
-    console.error("[Classifier] Gemini failed:", (error as Error).message);
+    console.error(`[Classifier] Gemini failed: ${(error as Error).message}`, error);
     return null;
   }
 }
@@ -111,7 +113,7 @@ async function tryOpenRouter(prompt: string): Promise<Omit<ClassificationResult,
         "HTTP-Referer": process.env.APP_URL ?? "https://impact-tracker.dev",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.1-8b-instruct:free",
+        model: "meta-llama/llama-3.1-8b-instruct",
         messages: [
           {
             role: "system",
@@ -124,7 +126,11 @@ async function tryOpenRouter(prompt: string): Promise<Omit<ClassificationResult,
       }),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Classifier] OpenRouter failed (${response.status}): ${errorText}`);
+      return null;
+    }
 
     const data = (await response.json()) as {
       choices: Array<{ message: { content: string } }>;

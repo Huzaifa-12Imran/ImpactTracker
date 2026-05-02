@@ -18,37 +18,39 @@ export interface CommunityInput {
 export function scoreCommunityHealth(input: CommunityInput): number {
   let score = 0;
 
-  // Issue response time (0-4)
+  // 1. Community Profile Health (0-4 points)
+  // Rewards templates, license, and CoC
+  if (input.communityProfile) {
+    score += (input.communityProfile.healthPercentage / 100) * 4;
+  }
+
+  // 2. Issue response time (0-2 points)
   if (input.avgIssueResponseHours !== null) {
     if (input.avgIssueResponseHours <= 48) {
-      score += 4;
+      score += 2;
     } else if (input.avgIssueResponseHours <= 168) {
-      // Partial credit for responses within a week
-      score += Math.round((1 - (input.avgIssueResponseHours - 48) / 120) * 4 * 100) / 100;
-      score = Math.max(score, 0);
+      score += Math.round((1 - (input.avgIssueResponseHours - 48) / 120) * 2 * 100) / 100;
     }
   }
 
-  // PR merge rate (0-3)
+  // 3. PR merge rate (0-2 points)
   if (input.prMergeRate !== null) {
     if (input.prMergeRate >= 0.5) {
-      score += 3;
+      score += 2;
     } else {
-      score += Math.round((input.prMergeRate / 0.5) * 3 * 100) / 100;
+      score += Math.round((input.prMergeRate / 0.5) * 2 * 100) / 100;
     }
   }
 
-  // Recent activity (0-3)
+  // 4. Recent activity (0-2 points)
   if (input.lastActivityDate) {
     const daysSinceActivity = Math.floor(
       (Date.now() - input.lastActivityDate.getTime()) / (1000 * 60 * 60 * 24)
     );
     if (daysSinceActivity <= 30) {
-      score += 3;
+      score += 2;
     } else if (daysSinceActivity <= 90) {
-      // Partial credit for somewhat recent activity
-      score += Math.round((1 - (daysSinceActivity - 30) / 60) * 3 * 100) / 100;
-      score = Math.max(score, 0);
+      score += Math.round((1 - (daysSinceActivity - 30) / 60) * 2 * 100) / 100;
     }
   }
 

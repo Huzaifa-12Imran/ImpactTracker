@@ -27,6 +27,7 @@ export interface ScoreInput {
   sectorConfidence: number;
   sdgGoals: SDGGoal[];
   sectorKeywords: string[];
+  source: "gemini" | "openrouter" | "rule-based";
 
   // SDG weight overrides from AppConfig
   sdgWeightOverrides?: Record<number, number>;
@@ -113,6 +114,7 @@ export function computeImpactScore(input: ScoreInput): ImpactScoreResult {
     sdgGoals: input.sdgGoals,
     sectorKeywords: input.sectorKeywords,
     contentHash,
+    source: input.source,
   };
 }
 

@@ -46,6 +46,7 @@ export interface ImpactScoreResult extends ScoreDimensions {
   sdgGoals: SDGGoal[];
   sectorKeywords: string[];
   contentHash: string;
+  source: "gemini" | "openrouter" | "rule-based";
 }
 
 // --- Repository Data ---

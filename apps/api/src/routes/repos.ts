@@ -177,6 +177,7 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
           contributorCountries: (latestScore.contributorCountries as Record<string, number>) ?? {},
           firstTimerCount: latestScore.firstTimerCount,
           totalContributors: latestScore.totalContributors,
+          classificationSource: (latestScore.classificationSource as any) ?? "rule-based",
           lastAnalyzedAt: repository.lastAnalyzedAt?.toISOString() ?? null,
         }
       : null,

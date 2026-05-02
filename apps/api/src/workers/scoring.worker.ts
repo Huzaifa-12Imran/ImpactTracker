@@ -69,6 +69,7 @@ export function startScoringWorker(): Worker<ScoringJobData> {
       let sectorConfidence = 0;
       let sdgGoals: SDGGoal[] = [9];
       let sectorKeywords: string[] = [];
+      let classificationSource: "gemini" | "openrouter" | "rule-based" = "rule-based";
 
       if (skipClassification && repo.impactScores[0]) {
         // Re-score only: reuse existing classification
@@ -76,6 +77,7 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         sectorConfidence = repo.impactScores[0].sectorConfidence ?? 0;
         sdgGoals = (repo.impactScores[0].sdgGoals ?? [9]) as SDGGoal[];
         sectorKeywords = repo.impactScores[0].sectorKeywords ?? [];
+        classificationSource = (repo.impactScores[0] as any)?.classificationSource ?? "rule-based";
       } else if (job.data.forceClassification || contentChanged || !repo.impactScores[0]) {
         // Content changed or first-time: run AI classification
         await prisma.repository.update({
@@ -96,7 +98,8 @@ export function startScoringWorker(): Worker<ScoringJobData> {
           sectorConfidence = classification.confidence;
           sdgGoals = classification.sdgGoals;
           sectorKeywords = classification.keywords;
-          console.log(`[Scoring] Classified as ${sector} (${classification.source}, confidence: ${sectorConfidence})`);
+          classificationSource = classification.source;
+          console.log(`[Scoring] Classified as ${sector} (${classificationSource}, confidence: ${sectorConfidence})`);
         } else {
           // All classifiers failed — mark as pending for retry
           console.warn(`[Scoring] Classification failed for ${repo.fullName}, defaulting to General Tech`);
@@ -107,6 +110,7 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         sectorConfidence = repo.impactScores[0]?.sectorConfidence ?? 0;
         sdgGoals = (repo.impactScores[0]?.sdgGoals ?? [9]) as SDGGoal[];
         sectorKeywords = repo.impactScores[0]?.sectorKeywords ?? [];
+        classificationSource = (repo.impactScores[0] as any)?.classificationSource ?? "rule-based";
         console.log(`[Scoring] Content unchanged — reusing classification: ${sector}`);
       }
 
@@ -119,6 +123,7 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         sectorConfidence,
         sdgGoals,
         sectorKeywords,
+        source: classificationSource,
         sdgWeightOverrides,
         contributors: repo.contributors.map((c) => ({
           resolvedCountry: c.resolvedCountry,
@@ -159,6 +164,7 @@ export function startScoringWorker(): Worker<ScoringJobData> {
           firstTimerCount: repo.contributors.filter((c) => c.isFirstTimer).length,
           totalContributors: repo.contributors.length,
           contentHash: currentHash,
+          classificationSource: scoreResult.source,
         },
       });
 

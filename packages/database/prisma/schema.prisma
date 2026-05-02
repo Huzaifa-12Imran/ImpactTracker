@@ -67,6 +67,7 @@ model ImpactScore {
   sectorConfidence     Float?
   sdgGoals             Int[]    // UN SDG numbers
   sectorKeywords       String[]
+  classificationSource String?  // gemini, openrouter, or rule-based
 
   contributorCountries Json?    // { "US": 12, "IN": 8, ... }
   firstTimerCount      Int?
