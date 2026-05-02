@@ -150,17 +150,20 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
     console.log(`[AutoRetry] Resetting failed repo: ${owner}/${repo}`);
     const { getAnalysisQueue } = await import("../queues/index.js");
     const analysisQueue = getAnalysisQueue();
+    const timestamp = Date.now();
     
     await prisma.repository.update({
       where: { id: repository.id },
-      data: { status: "PENDING", statusMessage: "Retrying analysis..." },
+      data: { status: "PENDING", statusMessage: "Forcing fresh analysis..." },
     });
     
-    await analysisQueue.add("analyze", {
+    await analysisQueue.add(`analyze-${owner}-${repo}-${timestamp}`, {
       owner,
       repo,
-      installationId: repository.installationId,
+      installationId: null, // Force app-level auth for retries
       fullAnalysis: true,
+    }, {
+      jobId: `analyze-${owner}-${repo}-${timestamp}`
     });
     
     res.json({
