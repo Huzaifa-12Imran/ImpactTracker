@@ -213,15 +213,14 @@ export function startScoringWorker(): Worker<ScoringJobData> {
       // Invalidate badge cache
       try {
         const redis = getRedis();
-        const patterns = [
-          `badge:${repo.owner}:${repo.name}:*`,
-        ];
-        for (const pattern of patterns) {
-          const keys = await redis.keys(pattern);
-          if (keys.length > 0) await redis.del(...keys);
+        const styles = ["default", "flat", "sdg"];
+        for (const style of styles) {
+          // Invalidate both exact casing and lowercase casing just in case
+          await redis.del(`badge:${repo.owner}:${repo.name}:${style}`);
+          await redis.del(`badge:${repo.owner.toLowerCase()}:${repo.name.toLowerCase()}:${style}`);
         }
-      } catch {
-        // Cache invalidation failed — non-fatal
+      } catch (err) {
+        console.error("Cache invalidation error:", err);
       }
 
       console.log(`[Scoring] Complete: ${repo.fullName} → ${scoreResult.totalScore}/100 (${sector})`);
