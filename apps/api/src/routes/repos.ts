@@ -124,13 +124,15 @@ router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<v
         });
 
         try {
-          const { startAnalysisWorker } = await import("../workers/analysis.worker.js");
-          await startAnalysisWorker().add(
-            "analyze-repo",
+          const { getAnalysisQueue } = await import("../queues/index.js");
+          const queue = getAnalysisQueue();
+          await queue.add(
+            `analyze-${repo.fullName}`,
             {
-              repoId: repo.id,
-              fullName: repo.fullName,
+              owner: repo.owner,
+              repo: repo.name,
               installationId: installId,
+              fullAnalysis: true,
             },
             {
               jobId: `analyze-${repo.fullName}-${Date.now()}`,
