@@ -19,15 +19,17 @@ router.post("/github", async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  // Verify signature
+  // Verify signature using raw body for accuracy
   const secret = process.env.GITHUB_WEBHOOK_SECRET ?? "";
-  const body = JSON.stringify(req.body);
+  const rawBody = (req as any).rawBody || Buffer.from(JSON.stringify(req.body));
+  
   const expectedSig = "sha256=" + crypto
     .createHmac("sha256", secret)
-    .update(body)
+    .update(rawBody)
     .digest("hex");
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+  if (signature.length !== expectedSig.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+    console.warn(`[Webhook] Signature mismatch for ${deliveryId}`);
     res.status(401).json({ error: "Invalid signature" });
     return;
   }

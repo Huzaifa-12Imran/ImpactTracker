@@ -32,7 +32,12 @@ app.use(cors({
   credentials: true,
 }));
 app.use(morgan("dev"));
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ 
+  limit: "10mb",
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
 // --- Health Check ---
 app.get("/health", (_req, res) => {

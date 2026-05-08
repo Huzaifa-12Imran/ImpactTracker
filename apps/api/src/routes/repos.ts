@@ -16,7 +16,7 @@ router.get("/", requireAuth, async (req: Request, res: Response): Promise<void> 
   const repos = await prisma.repository.findMany({
     where: {
       OR: [
-        { owner: user.login },
+        { owner: { equals: user.login, mode: 'insensitive' } },
         { 
           installationId: { not: null },
           // Note: In a more complex setup, we'd check installation permissions.
@@ -35,12 +35,12 @@ router.get("/", requireAuth, async (req: Request, res: Response): Promise<void> 
 
   // Further filter: If it's an installation, ensure the installation belongs to the user
   const installations = await prisma.installation.findMany({
-    where: { accountLogin: user.login }
+    where: { accountLogin: { equals: user.login, mode: 'insensitive' } }
   });
   const userInstallIds = installations.map(i => i.githubInstallId);
 
   const filteredRepos = repos.filter(r => {
-    if (r.owner === user.login) return true;
+    if (r.owner.toLowerCase() === user.login.toLowerCase()) return true;
     if (r.installationId && userInstallIds.includes(r.installationId)) return true;
     return false;
   });
@@ -138,7 +138,10 @@ router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<v
       }
     }
 
-    console.log(`[Sync] Completed. Synced ${syncedCount} total repositories.`);
+    console.log(`[Sync] Completed. Synced ${syncedCount} total repositories across ${installations.length} installations.`);
+    if (syncedCount === 0 && installations.length > 0) {
+      console.warn("[Sync] WARNING: Found installations but no repositories. Check app permissions.");
+    }
     res.json({ message: `Successfully synced ${syncedCount} repositories from ${installations.length} installations.` });
   } catch (error) {
     console.error("[Sync] Error during manual sync:", error);
