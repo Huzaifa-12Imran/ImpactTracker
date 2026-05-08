@@ -96,7 +96,7 @@ export function getGitHubApp(): App {
   return appInstance;
 }
 
-import { createAppAuth } from "@octokit/auth-app";
+
 /**
  * Get an authenticated Octokit instance for the App itself (using JWT).
  */
