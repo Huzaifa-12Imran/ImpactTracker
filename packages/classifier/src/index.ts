@@ -72,30 +72,50 @@ export async function classifyRepo(input: ClassifyInput): Promise<Classification
 
 // --- Gemini (Primary) ---
 
+// Simple serial queue: ensures max 1 Gemini call per 4 seconds (≤15 RPM free tier)
+let geminiQueue: Promise<unknown> = Promise.resolve();
+const GEMINI_DELAY_MS = 4000;
+
+function enqueueGemini<T>(fn: () => Promise<T>): Promise<T> {
+  const next = geminiQueue.then(
+    () => new Promise<void>((res) => setTimeout(res, GEMINI_DELAY_MS))
+  ).then(fn);
+  // Keep queue alive even if this call fails
+  geminiQueue = next.catch(() => {});
+  return next;
+}
+
 async function tryGemini(prompt: string): Promise<Omit<ClassificationResult, "source"> | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.2,
-        maxOutputTokens: 256,
-      },
-    });
+  return enqueueGemini(async () => {
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash",
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+          maxOutputTokens: 256,
+        },
+      });
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const parsed = parseClassificationResponse(text);
-    console.log(`[Classifier] Gemini result for repo: ${parsed?.sector} (Confidence: ${parsed?.confidence})`);
-    return parsed;
-  } catch (error) {
-    console.error(`[Classifier] Gemini failed: ${(error as Error).message}`, error);
-    return null;
-  }
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      const parsed = parseClassificationResponse(text);
+      console.log(`[Classifier] Gemini result: ${parsed?.sector} (confidence: ${parsed?.confidence})`);
+      return parsed;
+    } catch (error) {
+      const msg = (error as Error).message;
+      if (msg.includes("429")) {
+        console.warn("[Classifier] Gemini rate-limited, falling back to next tier");
+      } else {
+        console.error(`[Classifier] Gemini failed: ${msg}`);
+      }
+      return null;
+    }
+  });
 }
 
 // --- OpenRouter (Fallback) ---
