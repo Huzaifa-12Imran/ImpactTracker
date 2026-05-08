@@ -1,9 +1,8 @@
 /**
- * First-Timer Onboarding Dimension (0-20 points)
+ * Contributor Reach Dimension (0-20 points)
  *
- * Rewards repos that actively welcome new developers.
- * Ratio of first-time contributors in the contributor base.
- * 50%+ first-timers = full score.
+ * Rewards repos that attract multiple contributors.
+ * 10+ contributors = full score, scales linearly below that.
  */
 import { SCORING_THRESHOLDS } from "@impact/shared";
 
@@ -13,14 +12,15 @@ export interface FirstTimerInput {
 }
 
 export function scoreFirstTimerOnboarding(input: FirstTimerInput): number {
-  const { firstTimerCount, totalContributors } = input;
+  const { totalContributors } = input;
 
   if (totalContributors === 0) return 0;
 
-  const ratio = firstTimerCount / totalContributors;
-
-  // Scale: 50%+ first-timers = full score, linear below that
-  const normalized = Math.min(ratio / SCORING_THRESHOLDS.maxFirstTimerRatio, 1.0);
+  // Scale: 10+ contributors = full score (20 pts), linear below
+  const maxContributors = SCORING_THRESHOLDS.maxFirstTimerRatio
+    ? 1 / SCORING_THRESHOLDS.maxFirstTimerRatio  // fallback calc
+    : 10;
+  const normalized = Math.min(totalContributors / 10, 1.0);
   const score = normalized * 20;
 
   return Math.round(score * 100) / 100;
