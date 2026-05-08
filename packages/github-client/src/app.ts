@@ -131,9 +131,29 @@ export function getAppOctokit(): Octokit {
 }
 
 /**
+ * Get an unauthenticated Octokit instance for public repository access.
+ * Use this when no installation ID is available.
+ */
+export function getPublicOctokit(): Octokit {
+  return new ThrottledOctokit({
+    throttle: {
+      onRateLimit: (retryAfter: number) => {
+        console.warn(`[GitHub Public] Rate limit hit, retrying after ${retryAfter}s`);
+        return true;
+      },
+      onSecondaryRateLimit: (retryAfter: number) => {
+        console.warn(`[GitHub Public] Secondary rate limit hit, retrying after ${retryAfter}s`);
+        return true;
+      },
+    },
+  }) as unknown as Octokit;
+}
+
+/**
  * Get an authenticated Octokit instance for a specific installation.
  */
 export async function getInstallationOctokit(installationId: number): Promise<Octokit> {
   const app = getGitHubApp();
   return (await app.getInstallationOctokit(installationId)) as unknown as Octokit;
 }
+

@@ -48,8 +48,8 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
           octokit = await getInstallationOctokit(installationId);
         } else {
           console.log(`[Analysis] Using App Master Auth (On-Demand Mode)`);
-          const { getAppOctokit } = await import("@impact/github-client");
-          octokit = getAppOctokit();
+          const { getPublicOctokit } = await import("@impact/github-client");
+          octokit = getPublicOctokit();
         }
 
         console.log(`[Analysis] Octokit ready. Starting data fetch for ${fullName}...`);

@@ -203,7 +203,7 @@ router.get("/:owner/:repo/score", async (req: Request, res: Response): Promise<v
     await analysisQueue.add(`analyze-${owner}-${repo}-${timestamp}`, {
       owner,
       repo,
-      installationId: null, // Force app-level auth for retries
+      installationId: repository.installationId as number | null, // Use stored installation ID if available
       fullAnalysis: true,
     }, {
       jobId: `analyze-${owner}-${repo}-${timestamp}`

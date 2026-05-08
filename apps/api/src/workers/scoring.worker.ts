@@ -132,8 +132,8 @@ export function startScoringWorker(): Worker<ScoringJobData> {
         if (repo.installationId) {
           octokit = await getInstallationOctokit(repo.installationId);
         } else {
-          const { getAppOctokit } = await import("@impact/github-client");
-          octokit = getAppOctokit();
+          const { getPublicOctokit } = await import("@impact/github-client");
+          octokit = getPublicOctokit();
         }
         const stats = await getCommunityActivityStats(octokit, repo.owner, repo.name);
         avgIssueResponseHours = stats.avgIssueResponseHours;
