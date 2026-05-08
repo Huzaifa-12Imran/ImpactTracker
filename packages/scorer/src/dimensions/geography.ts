@@ -13,16 +13,21 @@ export interface GeographyInput {
 }
 
 export function scoreContributorGeography(input: GeographyInput): number {
-  const countryCount = Object.keys(input.contributorCountries).length;
+  const { contributorCountries, totalContributors } = input;
 
-  if (countryCount === 0) return 0;
+  if (totalContributors === 0) return 0;
 
-  // Massively buff geography: 1 country gives 15 points, 2+ gives 25 points
-  let score = 0;
-  if (countryCount === 1) score = 15;
-  if (countryCount >= 2) score = 25;
+  // Count unique countries (exclude "Unknown")
+  const countries = Object.keys(contributorCountries).filter((c) => c !== "Unknown");
+  const uniqueCountries = countries.length;
 
-  return Math.min(score, SCORE_MAX.contributorGeography);
+  if (uniqueCountries === 0) return 0;
+
+  // Linear scale: 15 countries = full score
+  const ratio = Math.min(uniqueCountries / SCORING_THRESHOLDS.maxGeographyCountries, 1.0);
+  const score = ratio * 25;
+
+  return Math.round(score * 100) / 100;
 }
 
 /**

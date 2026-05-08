@@ -12,14 +12,13 @@ export interface FirstTimerInput {
 }
 
 export function scoreFirstTimerOnboarding(input: FirstTimerInput): number {
-  if (input.totalContributors === 0) return 0;
+  const { totalContributors } = input;
 
-  // Massively buff contributor score:
-  // 1 contributor = 10 points
-  // 2+ contributors = 20 points
-  let score = 0;
-  if (input.totalContributors >= 1) score = 10;
-  if (input.totalContributors >= 2) score = 20;
+  if (totalContributors === 0) return 0;
 
-  return Math.min(score, 20);
+  // Scale: 10+ contributors = full score (20 pts), linear below
+  const normalized = Math.min(totalContributors / 10, 1.0);
+  const score = normalized * 20;
+
+  return Math.round(score * 100) / 100;
 }
