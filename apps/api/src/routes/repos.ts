@@ -100,7 +100,6 @@ router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<v
       const { data: { repositories } } = await octokit.request("GET /installation/repositories");
       console.log(`[Sync] Found ${repositories.length} repositories for ${accountLogin}.`);
 
-      const analysisQueue = (await import("../queues/index.js")).getAnalysisQueue();
       for (const repoData of repositories) {
         console.log(`[Sync] Upserting & Enqueueing repo: ${repoData.full_name} (Force: ${force})`);
         const repo = await prisma.repository.upsert({
@@ -124,9 +123,8 @@ router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<v
           },
         });
 
-        // Enqueue analysis job - Wrap in try/catch to handle Redis limit errors
         try {
-          const { startAnalysisWorker } = await import("../workers/analysis.js");
+          const { startAnalysisWorker } = await import("../workers/analysis.worker.js");
           await startAnalysisWorker().add(
             "analyze-repo",
             {
