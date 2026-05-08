@@ -39,7 +39,7 @@ export default function BadgeEmbed({ owner, repo }: BadgeEmbedProps) {
       {/* Badge preview */}
       <div className="mb-6 flex items-center justify-center border border-jet-black bg-slate-50 p-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`${badgeUrl}?v=${Date.now()}`} alt="Impact Score Badge" className="h-5" />
+        <img src={badgeUrl} alt="Impact Score Badge" className="h-5" />
       </div>
 
       {/* Style selector */}
