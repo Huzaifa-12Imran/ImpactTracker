@@ -37,11 +37,11 @@ function reformatPem(raw: string): string {
   const header = `-----BEGIN ${headerMatch[1]}-----`;
   const footer = `-----END ${footerMatch[1]}-----`;
 
-  // 5. Extract body: everything between header and footer, strip all whitespace
+  // 5. Extract body: strip all whitespace AND any non-base64 characters
   const body = key
     .replace(header, "")
     .replace(footer, "")
-    .replace(/\s+/g, "");
+    .replace(/[^A-Za-z0-9+/=]/g, ""); // keep only valid base64 chars
 
   // 6. Re-wrap body at 64 chars per line (standard PEM format)
   const wrapped = (body.match(/.{1,64}/g) ?? [body]).join("\n");

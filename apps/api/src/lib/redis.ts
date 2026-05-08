@@ -5,7 +5,13 @@ let redis: Redis | null = null;
 export function getRedis(): Redis {
   if (redis) return redis;
 
-  const rawUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
+  // Strip surrounding quotes that Northflank may have included in the stored value
+  let rawUrl = (process.env.REDIS_URL ?? "redis://localhost:6379").trim();
+  if ((rawUrl.startsWith('"') && rawUrl.endsWith('"')) || (rawUrl.startsWith("'") && rawUrl.endsWith("'"))) {
+    rawUrl = rawUrl.slice(1, -1);
+  }
+  // Also strip a lone trailing quote that can appear if pasted with one side quoted
+  rawUrl = rawUrl.replace(/["']$/, "").replace(/^["']/, "");
 
   // Log the URL (masking the password) so we can see what's being used
   const maskedUrl = rawUrl.replace(/:([^@]+)@/, ":***@");
