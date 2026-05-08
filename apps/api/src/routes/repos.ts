@@ -103,10 +103,9 @@ router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<v
       const analysisQueue = (await import("../queues/index.js")).getAnalysisQueue();
       for (const repoData of repositories) {
         console.log(`[Sync] Upserting & Enqueueing repo: ${repoData.full_name} (Force: ${force})`);
-        await prisma.repository.upsert({
+        const repo = await prisma.repository.upsert({
           where: { fullName: repoData.full_name },
           update: {
-            githubId: repoData.id,
             description: repoData.description,
             stars: repoData.stargazers_count,
             language: repoData.language,
@@ -125,14 +124,25 @@ router.post("/sync", requireAuth, async (req: Request, res: Response): Promise<v
           },
         });
 
-        // Add to analysis queue
-        await analysisQueue.add(`sync-${repoData.full_name}`, {
-          owner: repoData.owner.login,
-          repo: repoData.name,
-          installationId: installId,
-          fullAnalysis: true,
-          forceClassification: force,
-        });
+        // Enqueue analysis job - Wrap in try/catch to handle Redis limit errors
+        try {
+          const { startAnalysisWorker } = await import("../workers/analysis.js");
+          await startAnalysisWorker().add(
+            "analyze-repo",
+            {
+              repoId: repo.id,
+              fullName: repo.fullName,
+              installationId: installId,
+            },
+            {
+              jobId: `analyze-${repo.fullName}-${Date.now()}`,
+              attempts: 3,
+              backoff: { type: "exponential", delay: 1000 },
+            }
+          );
+        } catch (redisError) {
+          console.warn(`[Sync] Failed to enqueue analysis for ${repo.fullName} (Redis likely over limit):`, (redisError as Error).message);
+        }
 
         syncedCount++;
       }
