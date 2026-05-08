@@ -12,6 +12,7 @@ export function getRedis(): Redis {
   redis = new Redis(url, {
     maxRetriesPerRequest: null, // Required for BullMQ
     enableReadyCheck: false,
+    db: 0, // Upstash only supports DB 0
     retryStrategy: (times: number) => {
       if (times > 10) return null; // Stop retrying after 10 attempts
       return Math.min(times * 200, 5000);

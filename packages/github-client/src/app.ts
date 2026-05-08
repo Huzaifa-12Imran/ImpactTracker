@@ -38,6 +38,23 @@ function sanitizePrivateKey(raw: string): string {
   return key;
 }
 
+/**
+ * Converts a PKCS#1 RSA private key (-----BEGIN RSA PRIVATE KEY-----)
+ * to PKCS#8 format (-----BEGIN PRIVATE KEY-----) which Node 18+ prefers.
+ * If already PKCS#8, returns as-is.
+ */
+function ensurePkcs8(pem: string): string {
+  if (pem.includes("BEGIN PRIVATE KEY")) return pem; // already PKCS#8
+  try {
+    const { createPrivateKey } = require("crypto") as typeof import("crypto");
+    const keyObj = createPrivateKey({ key: pem, format: "pem" });
+    return keyObj.export({ type: "pkcs8", format: "pem" }) as string;
+  } catch (err) {
+    console.warn("[GitHub App] Could not convert key to PKCS#8, using as-is:", (err as Error).message);
+    return pem;
+  }
+}
+
 const ThrottledOctokit = Octokit.plugin(throttling);
 
 let appInstance: App | null = null;
@@ -55,8 +72,8 @@ export function getGitHubApp(): App {
     );
   }
 
-  const decodedKey = sanitizePrivateKey(privateKey);
-  console.log(`[GitHub App] Key starts with: ${decodedKey.substring(0, 40).replace(/\n/g, "↵")}`);
+  const decodedKey = ensurePkcs8(sanitizePrivateKey(privateKey));
+  console.log(`[GitHub App] Key format: ${decodedKey.includes("BEGIN PRIVATE KEY") ? "PKCS#8" : "PKCS#1"}, starts with: ${decodedKey.substring(0, 40).replace(/\n/g, "↵")}`);
 
   appInstance = new App({
     appId,
@@ -95,7 +112,7 @@ export function getAppOctokit(): Octokit {
     throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY");
   }
 
-  const finalKey = sanitizePrivateKey(privateKey);
+  const finalKey = ensurePkcs8(sanitizePrivateKey(privateKey));
 
   // Stage 1: Create an auth instance to get the JWT
   const auth = createAppAuth({
