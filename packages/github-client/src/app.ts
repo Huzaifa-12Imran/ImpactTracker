@@ -110,16 +110,13 @@ export function getAppOctokit(): Octokit {
 
   const finalKey = reformatPem(privateKey);
 
-  // Stage 1: Create an auth instance to get the JWT
-  const auth = createAppAuth({
-    appId,
-    privateKey: finalKey,
-  });
-
-  // Stage 2: Return a throttled Octokit that uses the JWT as a static token
-  // This prevents Octokit from trying to "find" an installation ID
+  // Return a throttled Octokit that uses the App JWT Auth Strategy
   return new ThrottledOctokit({
-    authStrategy: () => auth({ type: "app" }), 
+    authStrategy: createAppAuth,
+    auth: {
+      appId,
+      privateKey: finalKey,
+    },
     throttle: {
       onRateLimit: (retryAfter: number) => {
         console.warn(`[GitHub App] Rate limit hit, retrying after ${retryAfter}s`);
