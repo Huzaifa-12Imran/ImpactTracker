@@ -157,3 +157,4 @@ impact-tracker/
 ## License
 
 MIT
+Made with love!
