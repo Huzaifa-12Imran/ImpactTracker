@@ -58,7 +58,7 @@ export async function getContributors(
         location,
         resolvedCountry: null, // Resolved by the shared utils
         commitCount: contrib.contributions ?? 0,
-        isFirstTimer: false,   // Determined by analysis worker
+        isFirstTimer: false,   // Will be resolved after PR fetch
         firstContribAt: null,
       });
     }
@@ -124,4 +124,34 @@ export async function getCommunityProfile(
   } catch {
     return null;
   }
+}
+
+/**
+ * Get the set of contributor logins who opened their first-ever PR to this repo.
+ * GitHub marks these with author_association = "FIRST_TIME_CONTRIBUTOR".
+ */
+export async function getFirstTimerLogins(
+  octokit: Octokit,
+  owner: string,
+  repo: string
+): Promise<Set<string>> {
+  const firstTimers = new Set<string>();
+  try {
+    const iterator = octokit.paginate.iterator(octokit.rest.pulls.list, {
+      owner,
+      repo,
+      state: "all",
+      per_page: 100,
+    });
+    for await (const response of iterator) {
+      for (const pr of response.data) {
+        if (pr.author_association === "FIRST_TIME_CONTRIBUTOR" && pr.user?.login) {
+          firstTimers.add(pr.user.login);
+        }
+      }
+    }
+  } catch {
+    // Swallow — repos with no PRs return empty set
+  }
+  return firstTimers;
 }

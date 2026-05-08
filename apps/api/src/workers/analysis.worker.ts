@@ -6,7 +6,7 @@
  */
 import { Worker, type Job } from "bullmq";
 import { prisma } from "@impact/database";
-import { getInstallationOctokit, getRepo, getContributors, getReadme, getCommunityProfile } from "@impact/github-client";
+import { getInstallationOctokit, getRepo, getContributors, getFirstTimerLogins, getReadme, getCommunityProfile } from "@impact/github-client";
 import { resolveCountry } from "@impact/shared";
 import { getRedis } from "../lib/redis.js";
 import { getScoringQueue, type AnalysisJobData } from "../queues/index.js";
@@ -83,6 +83,15 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
         });
         console.log(`[Analysis] Total contributors processed: ${contributors.length}`);
 
+        // 4b. Detect first-timers via PR author_association
+        await job.updateProgress(55);
+        const firstTimerLogins = await getFirstTimerLogins(octokit, owner, repo);
+        console.log(`[Analysis] First-timer logins: ${[...firstTimerLogins].join(", ") || "none"}`);
+        const contributorsWithFirstTimer = contributors.map((c) => ({
+          ...c,
+          isFirstTimer: firstTimerLogins.has(c.login),
+        }));
+
         // 5. Fetch community profile
         await job.updateProgress(60);
         const communityProfile = await getCommunityProfile(octokit, owner, repo);
@@ -116,7 +125,7 @@ export function startAnalysisWorker(): Worker<AnalysisJobData> {
             healthPercentage: communityProfile?.healthPercentage ?? 0,
             statusMessage: "Preparing score computation...",
             contributors: {
-              upsert: contributors.map((c) => ({
+              upsert: contributorsWithFirstTimer.map((c) => ({
                 where: {
                   githubLogin_repositoryId: {
                     githubLogin: c.login,
