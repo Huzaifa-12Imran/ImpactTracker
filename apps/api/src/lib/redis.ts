@@ -5,7 +5,9 @@ let redis: Redis | null = null;
 export function getRedis(): Redis {
   if (redis) return redis;
 
-  const url = process.env.REDIS_URL ?? "redis://localhost:6379";
+  const rawUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
+  // Upstash only supports DB 0. Strip any trailing /<number> from the URL.
+  const url = rawUrl.replace(/\/\d+$/, "");
 
   redis = new Redis(url, {
     maxRetriesPerRequest: null, // Required for BullMQ

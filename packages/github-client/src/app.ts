@@ -3,6 +3,41 @@ import { App } from "@octokit/app";
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
 
+/**
+ * Robustly sanitizes a GitHub App private key from any env-var format.
+ * Handles: literal \n strings, base64 encoding, surrounding quotes, extra spaces.
+ */
+function sanitizePrivateKey(raw: string): string {
+  // 1. Remove surrounding quotes if present
+  let key = raw.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+
+  // 2. Replace literal \n sequences with real newlines
+  key = key.replace(/\\n/g, "\n");
+
+  // 3. If still no newlines and looks like base64, decode it
+  if (!key.includes("\n") && !key.includes("BEGIN")) {
+    try {
+      key = Buffer.from(key, "base64").toString("utf-8");
+    } catch {
+      // not base64, leave as-is
+    }
+  }
+
+  // 4. Normalize: ensure PEM headers are on their own lines
+  key = key
+    .replace(/-----BEGIN RSA PRIVATE KEY-----/g, "-----BEGIN RSA PRIVATE KEY-----\n")
+    .replace(/-----END RSA PRIVATE KEY-----/g, "\n-----END RSA PRIVATE KEY-----")
+    .replace(/-----BEGIN PRIVATE KEY-----/g, "-----BEGIN PRIVATE KEY-----\n")
+    .replace(/-----END PRIVATE KEY-----/g, "\n-----END PRIVATE KEY-----")
+    .replace(/\n{2,}/g, "\n") // collapse multiple newlines
+    .trim();
+
+  return key;
+}
+
 const ThrottledOctokit = Octokit.plugin(throttling);
 
 let appInstance: App | null = null;
@@ -20,11 +55,8 @@ export function getGitHubApp(): App {
     );
   }
 
-  // Decode base64 private key if needed, stripping all whitespace first
-  const cleanKey = privateKey.replace(/\s/g, "");
-  const decodedKey = cleanKey.includes("BEGIN")
-    ? privateKey.replace(/\\n/g, "\n").trim()
-    : Buffer.from(cleanKey, "base64").toString("utf-8").trim();
+  const decodedKey = sanitizePrivateKey(privateKey);
+  console.log(`[GitHub App] Key starts with: ${decodedKey.substring(0, 40).replace(/\n/g, "↵")}`);
 
   appInstance = new App({
     appId,
@@ -63,14 +95,7 @@ export function getAppOctokit(): Octokit {
     throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY");
   }
 
-  const cleanKey = privateKey.replace(/\s/g, "");
-  const decodedKey = cleanKey.includes("-----BEGIN")
-    ? privateKey.replace(/\\n/g, "\n").trim()
-    : Buffer.from(cleanKey, "base64").toString("utf-8").trim();
-
-  const finalKey = decodedKey.startsWith('"') && decodedKey.endsWith('"')
-    ? decodedKey.slice(1, -1).replace(/\\n/g, "\n")
-    : decodedKey;
+  const finalKey = sanitizePrivateKey(privateKey);
 
   // Stage 1: Create an auth instance to get the JWT
   const auth = createAppAuth({
