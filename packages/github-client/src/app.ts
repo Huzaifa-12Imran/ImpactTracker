@@ -101,48 +101,16 @@ import { createAppAuth } from "@octokit/auth-app";
  * Get an authenticated Octokit instance for the App itself (using JWT).
  */
 export function getAppOctokit(): Octokit {
-  const appId = process.env.GITHUB_APP_ID;
-  const privateKey = process.env.GITHUB_PRIVATE_KEY;
-
-  if (!appId || !privateKey) {
-    throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY");
-  }
-
-  const finalKey = reformatPem(privateKey);
-
-  // Return a throttled Octokit that uses the App JWT Auth Strategy
-  return new ThrottledOctokit({
-    authStrategy: createAppAuth,
-    auth: {
-      appId,
-      privateKey: finalKey,
-    },
-    throttle: {
-      onRateLimit: (retryAfter: number) => {
-        console.warn(`[GitHub App] Rate limit hit, retrying after ${retryAfter}s`);
-        return true;
-      },
-      onSecondaryRateLimit: (retryAfter: number) => {
-        console.warn(`[GitHub App] Secondary rate limit hit, retrying after ${retryAfter}s`);
-        return true;
-      },
-    },
-  }) as unknown as Octokit;
-}
-
-/**
- * Get an unauthenticated Octokit instance for public repository access.
- * Use this when no installation ID is available.
- */
-export function getPublicOctokit(): Octokit {
+  // Return a plain throttled Octokit for public/unauthenticated access.
+  // This avoids the 'bind' and 'installationId required' errors during analysis.
   return new ThrottledOctokit({
     throttle: {
       onRateLimit: (retryAfter: number) => {
-        console.warn(`[GitHub Public] Rate limit hit, retrying after ${retryAfter}s`);
+        console.warn(`[GitHub] Rate limit hit, retrying after ${retryAfter}s`);
         return true;
       },
       onSecondaryRateLimit: (retryAfter: number) => {
-        console.warn(`[GitHub Public] Secondary rate limit hit, retrying after ${retryAfter}s`);
+        console.warn(`[GitHub] Secondary rate limit hit, retrying after ${retryAfter}s`);
         return true;
       },
     },
@@ -156,4 +124,3 @@ export async function getInstallationOctokit(installationId: number): Promise<Oc
   const app = getGitHubApp();
   return (await app.getInstallationOctokit(installationId)) as unknown as Octokit;
 }
-
