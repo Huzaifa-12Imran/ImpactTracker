@@ -6,15 +6,33 @@ export function getRedis(): Redis {
   if (redis) return redis;
 
   const rawUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
-  // Upstash only supports DB 0. Strip any trailing /<number> from the URL.
-  const url = rawUrl.replace(/\/\d+$/, "");
 
-  redis = new Redis(url, {
+  // Parse the URL into explicit options so we can force db:0.
+  // Upstash only supports DB 0; passing it via URL path is unreliable.
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    // Fallback: connect with raw URL if parsing fails
+    redis = new Redis(rawUrl, { maxRetriesPerRequest: null, enableReadyCheck: false });
+    return redis;
+  }
+
+  const isTls = parsed.protocol === "rediss:";
+  const password = parsed.password ? decodeURIComponent(parsed.password) : undefined;
+  const username = parsed.username ? decodeURIComponent(parsed.username) : undefined;
+
+  redis = new Redis({
+    host: parsed.hostname,
+    port: parseInt(parsed.port || (isTls ? "6380" : "6379"), 10),
+    username,
+    password,
+    db: 0,  // Always use DB 0 — Upstash only supports this
+    tls: isTls ? {} : undefined,
     maxRetriesPerRequest: null, // Required for BullMQ
     enableReadyCheck: false,
-    db: 0, // Upstash only supports DB 0
     retryStrategy: (times: number) => {
-      if (times > 10) return null; // Stop retrying after 10 attempts
+      if (times > 10) return null;
       return Math.min(times * 200, 5000);
     },
   });
@@ -24,7 +42,7 @@ export function getRedis(): Redis {
   });
 
   redis.on("connect", () => {
-    console.log("[Redis] Connected");
+    console.log("[Redis] Connected successfully to DB 0");
   });
 
   return redis;

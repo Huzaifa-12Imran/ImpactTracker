@@ -2,6 +2,7 @@
 import { App } from "@octokit/app";
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
+import { createPrivateKey } from "crypto";
 
 /**
  * Robustly sanitizes a GitHub App private key from any env-var format.
@@ -46,7 +47,6 @@ function sanitizePrivateKey(raw: string): string {
 function ensurePkcs8(pem: string): string {
   if (pem.includes("BEGIN PRIVATE KEY")) return pem; // already PKCS#8
   try {
-    const { createPrivateKey } = require("crypto") as typeof import("crypto");
     const keyObj = createPrivateKey({ key: pem, format: "pem" });
     return keyObj.export({ type: "pkcs8", format: "pem" }) as string;
   } catch (err) {
