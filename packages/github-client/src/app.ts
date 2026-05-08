@@ -2,58 +2,55 @@
 import { App } from "@octokit/app";
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
-import { createPrivateKey } from "crypto";
 
 /**
- * Robustly sanitizes a GitHub App private key from any env-var format.
- * Handles: literal \n strings, base64 encoding, surrounding quotes, extra spaces.
+ * Reformats a PEM key with correct 64-character line wrapping.
+ * This is pure string manipulation — no OpenSSL dependency.
+ * Fixes ERR_OSSL_UNSUPPORTED caused by missing line breaks in the PEM body.
  */
-function sanitizePrivateKey(raw: string): string {
-  // 1. Remove surrounding quotes if present
+function reformatPem(raw: string): string {
   let key = raw.trim();
+
+  // 1. Strip surrounding quotes
   if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
     key = key.slice(1, -1);
   }
 
-  // 2. Replace literal \n sequences with real newlines
+  // 2. Convert literal \n to real newlines
   key = key.replace(/\\n/g, "\n");
 
-  // 3. If still no newlines and looks like base64, decode it
-  if (!key.includes("\n") && !key.includes("BEGIN")) {
+  // 3. If still no BEGIN header and no newlines, try base64 decode
+  if (!key.includes("BEGIN") && !key.includes("\n")) {
     try {
-      key = Buffer.from(key, "base64").toString("utf-8");
-    } catch {
-      // not base64, leave as-is
-    }
+      const decoded = Buffer.from(key, "base64").toString("utf-8");
+      if (decoded.includes("BEGIN")) key = decoded;
+    } catch { /* not base64 */ }
   }
 
-  // 4. Normalize: ensure PEM headers are on their own lines
-  key = key
-    .replace(/-----BEGIN RSA PRIVATE KEY-----/g, "-----BEGIN RSA PRIVATE KEY-----\n")
-    .replace(/-----END RSA PRIVATE KEY-----/g, "\n-----END RSA PRIVATE KEY-----")
-    .replace(/-----BEGIN PRIVATE KEY-----/g, "-----BEGIN PRIVATE KEY-----\n")
-    .replace(/-----END PRIVATE KEY-----/g, "\n-----END PRIVATE KEY-----")
-    .replace(/\n{2,}/g, "\n") // collapse multiple newlines
-    .trim();
-
-  return key;
-}
-
-/**
- * Converts a PKCS#1 RSA private key (-----BEGIN RSA PRIVATE KEY-----)
- * to PKCS#8 format (-----BEGIN PRIVATE KEY-----) which Node 18+ prefers.
- * If already PKCS#8, returns as-is.
- */
-function ensurePkcs8(pem: string): string {
-  if (pem.includes("BEGIN PRIVATE KEY")) return pem; // already PKCS#8
-  try {
-    const keyObj = createPrivateKey({ key: pem, format: "pem" });
-    return keyObj.export({ type: "pkcs8", format: "pem" }) as string;
-  } catch (err) {
-    console.warn("[GitHub App] Could not convert key to PKCS#8, using as-is:", (err as Error).message);
-    return pem;
+  // 4. Extract header and footer
+  const headerMatch = key.match(/-----BEGIN ([^-\n]+)-----/);
+  const footerMatch = key.match(/-----END ([^-\n]+)-----/);
+  if (!headerMatch || !footerMatch) {
+    console.warn("[GitHub App] Could not parse PEM structure, using key as-is");
+    return key;
   }
+  const header = `-----BEGIN ${headerMatch[1]}-----`;
+  const footer = `-----END ${footerMatch[1]}-----`;
+
+  // 5. Extract body: everything between header and footer, strip all whitespace
+  const body = key
+    .replace(header, "")
+    .replace(footer, "")
+    .replace(/\s+/g, "");
+
+  // 6. Re-wrap body at 64 chars per line (standard PEM format)
+  const wrapped = (body.match(/.{1,64}/g) ?? [body]).join("\n");
+
+  const result = `${header}\n${wrapped}\n${footer}`;
+  console.log(`[GitHub App] PEM reformatted: ${header}, body length: ${body.length} chars`);
+  return result;
 }
+
 
 const ThrottledOctokit = Octokit.plugin(throttling);
 
@@ -72,8 +69,7 @@ export function getGitHubApp(): App {
     );
   }
 
-  const decodedKey = ensurePkcs8(sanitizePrivateKey(privateKey));
-  console.log(`[GitHub App] Key format: ${decodedKey.includes("BEGIN PRIVATE KEY") ? "PKCS#8" : "PKCS#1"}, starts with: ${decodedKey.substring(0, 40).replace(/\n/g, "↵")}`);
+  const decodedKey = reformatPem(privateKey);
 
   appInstance = new App({
     appId,
@@ -112,7 +108,7 @@ export function getAppOctokit(): Octokit {
     throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY");
   }
 
-  const finalKey = ensurePkcs8(sanitizePrivateKey(privateKey));
+  const finalKey = reformatPem(privateKey);
 
   // Stage 1: Create an auth instance to get the JWT
   const auth = createAppAuth({

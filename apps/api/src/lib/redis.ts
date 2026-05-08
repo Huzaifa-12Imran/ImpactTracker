@@ -7,6 +7,10 @@ export function getRedis(): Redis {
 
   const rawUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
 
+  // Log the URL (masking the password) so we can see what's being used
+  const maskedUrl = rawUrl.replace(/:([^@]+)@/, ":***@");
+  console.log(`[Redis] Connecting to: ${maskedUrl}`);
+
   // Parse the URL into explicit options so we can force db:0.
   // Upstash only supports DB 0; passing it via URL path is unreliable.
   let parsed: URL;
