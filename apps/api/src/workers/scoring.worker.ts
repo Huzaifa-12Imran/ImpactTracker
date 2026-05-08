@@ -11,6 +11,7 @@ import { computeImpactScore } from "@impact/scorer";
 import { computeContentHash } from "@impact/shared";
 import type { Sector, SDGGoal } from "@impact/shared";
 import { getRedis } from "../lib/redis.js";
+import { getInstallationOctokit, getCommunityActivityStats } from "@impact/github-client";
 import type { ScoringJobData } from "../queues/index.js";
 
 /**
@@ -123,6 +124,25 @@ export function startScoringWorker(): Worker<ScoringJobData> {
       console.log(`[Scoring] Repo ${repo.fullName} has ${repo.contributors.length} contributors.`);
       repo.contributors.forEach(c => console.log(`[Scoring] - ${c.githubLogin}: ${c.resolvedCountry}`));
       
+      // Fetch community stats from GitHub
+      let avgIssueResponseHours: number | null = null;
+      let prMergeRate: number | null = null;
+      try {
+        let octokit;
+        if (repo.installationId) {
+          octokit = await getInstallationOctokit(repo.installationId);
+        } else {
+          const { getAppOctokit } = await import("@impact/github-client");
+          octokit = getAppOctokit();
+        }
+        const stats = await getCommunityActivityStats(octokit, repo.owner, repo.name);
+        avgIssueResponseHours = stats.avgIssueResponseHours;
+        prMergeRate = stats.prMergeRate;
+        console.log(`[Scoring] Community Stats for ${repo.fullName}: PR Merge Rate=${prMergeRate}, Avg Response=${avgIssueResponseHours}h`);
+      } catch (err) {
+        console.warn(`[Scoring] Failed to fetch community stats for ${repo.fullName}:`, err);
+      }
+
       const scoreResult = computeImpactScore({
         sector,
         sectorConfidence,
@@ -146,8 +166,8 @@ export function startScoringWorker(): Worker<ScoringJobData> {
           hasLicense: !!repo.license,
           healthPercentage: repo.healthPercentage,
         },
-        avgIssueResponseHours: null,
-        prMergeRate: null,
+        avgIssueResponseHours,
+        prMergeRate,
         lastActivityDate: repo.updatedAt,
       });
 

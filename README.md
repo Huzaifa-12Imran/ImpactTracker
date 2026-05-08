@@ -28,9 +28,12 @@ Impact Tracker is a next-generation GitHub App that analyzes repositories to mea
 
 ## 🏛️ Social Impact & Civic Mission
 
-Impact Tracker is built with a primary focus on **Civic Technology** and **Social Transparency**. By providing quantifiable metrics for open-source social impact, we aim to:
+Impact Tracker is built with a primary focus on **Civic Technology**, **Social Good**, and **Transparency in Government and Open Source**. By providing quantifiable metrics for open-source social impact, we aim to:
 - **Democratize Data**: Make impact metrics accessible to non-profits and community-driven projects.
-- **Support Global Goals**: Align open-source work with the **United Nations Sustainable Development Goals (SDGs)**, specifically Goal 9 (Industry, Innovation, and Infrastructure) and Goal 17 (Partnerships for the Goals).
+- **Support Global Goals**: Align open-source work directly with the **United Nations Sustainable Development Goals (SDGs)**, specifically:
+  - **Goal 11 (Sustainable Cities and Communities)**: Fostering inclusive and sustainable urbanization through civic tech.
+  - **Goal 16 (Peace, Justice and Strong Institutions)**: Promoting transparent, accountable, and inclusive institutions at all levels via open-source governance.
+  - **Goal 9 (Industry, Innovation, and Infrastructure)**: Building resilient open-source infrastructure.
 - **Inclusion & Diversity**: Promote geographic equity in software development by tracking contributor diversity.
 
 ## Features

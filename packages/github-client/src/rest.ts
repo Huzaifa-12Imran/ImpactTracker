@@ -155,3 +155,78 @@ export async function getFirstTimerLogins(
   }
   return firstTimers;
 }
+
+/**
+ * Calculates community activity stats like PR merge rate and issue response time.
+ */
+export async function getCommunityActivityStats(
+  octokit: Octokit,
+  owner: string,
+  repo: string
+): Promise<{ avgIssueResponseHours: number | null; prMergeRate: number | null }> {
+  let avgIssueResponseHours: number | null = null;
+  let prMergeRate: number | null = null;
+
+  try {
+    // 1. Calculate PR Merge Rate (last 50 PRs)
+    const { data: pulls } = await octokit.rest.pulls.list({
+      owner,
+      repo,
+      state: "all",
+      per_page: 50,
+    });
+
+    if (pulls.length > 0) {
+      const closedPulls = pulls.filter(p => p.state === "closed");
+      if (closedPulls.length > 0) {
+        const mergedPulls = closedPulls.filter(p => p.merged_at !== null);
+        prMergeRate = mergedPulls.length / closedPulls.length;
+      } else {
+        prMergeRate = 1.0; // All open = optimistic
+      }
+    }
+
+    // 2. Calculate Avg Issue Response Time (last 30 issues)
+    const { data: issues } = await octokit.rest.issues.listForRepo({
+      owner,
+      repo,
+      state: "all",
+      per_page: 30,
+    });
+
+    const actualIssues = issues.filter(i => !i.pull_request);
+    let totalResponseTimeMs = 0;
+    let respondedIssuesCount = 0;
+
+    for (const issue of actualIssues) {
+      if (issue.comments > 0) {
+        const { data: comments } = await octokit.rest.issues.listComments({
+          owner,
+          repo,
+          issue_number: issue.number,
+          per_page: 1,
+        });
+
+        if (comments.length > 0) {
+          const createdAt = new Date(issue.created_at).getTime();
+          const respondedAt = new Date(comments[0].created_at).getTime();
+          totalResponseTimeMs += Math.max(0, respondedAt - createdAt);
+          respondedIssuesCount++;
+        }
+      }
+    }
+
+    if (respondedIssuesCount > 0) {
+      avgIssueResponseHours = (totalResponseTimeMs / respondedIssuesCount) / (1000 * 60 * 60);
+    } else if (actualIssues.length > 0 && actualIssues.some(i => i.state === 'closed')) {
+      avgIssueResponseHours = 12; // If closed without comments, assume 12 hours
+    } else if (actualIssues.length === 0) {
+      avgIssueResponseHours = 12; // Optimistic if no issues
+    }
+
+  } catch (error) {
+    console.error(`[GitHub API] Failed to fetch community stats for ${owner}/${repo}`);
+  }
+
+  return { avgIssueResponseHours, prMergeRate };
+}
