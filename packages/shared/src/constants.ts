@@ -33,7 +33,7 @@ export const SCORE_MAX = {
 } as const;
 
 export const SCORING_THRESHOLDS = {
-  minClassificationConfidence: 0.7,
+  minClassificationConfidence: 0.5,
   ruleBasedConfidence: 0.6,
   maxGeographyCountries: 5,
   maxFirstTimerRatio: 0.5,
