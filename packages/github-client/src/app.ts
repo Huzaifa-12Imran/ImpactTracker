@@ -20,10 +20,11 @@ export function getGitHubApp(): App {
     );
   }
 
-  // Decode base64 private key if needed
-  const decodedKey = privateKey.includes("BEGIN")
-    ? privateKey
-    : Buffer.from(privateKey, "base64").toString("utf-8");
+  // Decode base64 private key if needed, stripping all whitespace first
+  const cleanKey = privateKey.replace(/\s/g, "");
+  const decodedKey = cleanKey.includes("BEGIN")
+    ? privateKey.replace(/\\n/g, "\n").trim()
+    : Buffer.from(cleanKey, "base64").toString("utf-8").trim();
 
   appInstance = new App({
     appId,
@@ -62,9 +63,10 @@ export function getAppOctokit(): Octokit {
     throw new Error("Missing GITHUB_APP_ID or GITHUB_PRIVATE_KEY");
   }
 
-  const decodedKey = privateKey.includes("-----BEGIN")
+  const cleanKey = privateKey.replace(/\s/g, "");
+  const decodedKey = cleanKey.includes("-----BEGIN")
     ? privateKey.replace(/\\n/g, "\n").trim()
-    : Buffer.from(privateKey, "base64").toString("utf-8").trim();
+    : Buffer.from(cleanKey, "base64").toString("utf-8").trim();
 
   const finalKey = decodedKey.startsWith('"') && decodedKey.endsWith('"')
     ? decodedKey.slice(1, -1).replace(/\\n/g, "\n")
