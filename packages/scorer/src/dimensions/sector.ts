@@ -36,10 +36,9 @@ export function scoreSectorRelevance(input: SectorInput): number {
   }
 
   // Scale by confidence
-  const effectiveConfidence = confidence >= SCORING_THRESHOLDS.minClassificationConfidence
-    ? confidence
-    : confidence * 0.7; // penalize low-confidence classifications
+  // Massively buff sector score:
+  // Give it +10 flat bonus so it hits 30 max.
+  const finalScore = Math.min(baseScore + 10, 30);
 
-  const finalScore = Math.min(baseScore * effectiveConfidence, 30);
   return Math.round(finalScore * 100) / 100;
 }
